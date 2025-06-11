@@ -68,6 +68,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(UPLOAD_DIR));
 app.use('/thumbs', express.static(THUMB_DIR));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     secret: 'keyboard cat',
@@ -210,6 +211,10 @@ app.post('/share/:token', (req, res) => {
   res.status(403).send('CPF incorreto');
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor iniciado na porta ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Servidor iniciado na porta ${PORT}`);
+  });
+}
+
+module.exports = app;
