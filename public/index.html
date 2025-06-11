@@ -18,6 +18,10 @@
         <input type="text" name="patientName" required>
       </div>
       <div>
+        <label>CPF</label>
+        <input type="text" name="cpf" required>
+      </div>
+      <div>
         <label>Data do exame</label>
         <input type="date" name="examDate" required>
       </div>
@@ -26,13 +30,13 @@
         <textarea name="notes"></textarea>
       </div>
       <div>
-        <input type="file" name="file" accept="image/*" required />
+        <input type="file" name="file" accept="application/pdf" required />
       </div>
       <button type="submit">Enviar</button>
     </form>
 
     <h2>Busca</h2>
-    <input type="text" id="searchInput" placeholder="Nome do paciente ou observação" />
+    <input type="text" id="searchInput" placeholder="Nome, CPF ou observação" />
 
     <h2>Lista de ecografias</h2>
     <div id="lista" class="grid"></div>

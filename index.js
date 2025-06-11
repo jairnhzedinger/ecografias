@@ -52,8 +52,11 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith('image/')) {
-      cb(new Error('Apenas imagens são permitidas'));
+    if (
+      !file.mimetype.startsWith('image/') &&
+      file.mimetype !== 'application/pdf'
+    ) {
+      cb(new Error('Apenas imagens ou PDF são permitidos'));
     } else {
       cb(null, true);
     }
@@ -110,6 +113,7 @@ app.get('/api/ecografias', requireAuth, (req, res) => {
     results = results.filter(
       (e) =>
         e.patientName.toLowerCase().includes(q) ||
+        (e.cpf && e.cpf.includes(q)) ||
         (e.notes && e.notes.toLowerCase().includes(q))
     );
   }
@@ -118,14 +122,18 @@ app.get('/api/ecografias', requireAuth, (req, res) => {
 
 app.post('/api/ecografias', requireAuth, upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Arquivo não enviado' });
-  const { patientName = '', examDate = '', notes = '' } = req.body;
+  const { patientName = '', examDate = '', notes = '', cpf = '' } = req.body;
   const id = ecografias.length ? ecografias[ecografias.length - 1].id + 1 : 1;
   const filename = req.file.filename;
-  const thumbFilename = 'thumb-' + filename;
-  await sharp(req.file.path).resize(200).toFile(path.join(THUMB_DIR, thumbFilename));
+  let thumbFilename = null;
+  if (req.file.mimetype.startsWith('image/')) {
+    thumbFilename = 'thumb-' + filename;
+    await sharp(req.file.path).resize(200).toFile(path.join(THUMB_DIR, thumbFilename));
+  }
   const item = {
     id,
     patientName,
+    cpf,
     examDate,
     notes,
     originalName: req.file.originalname,
@@ -152,7 +160,9 @@ app.delete('/api/ecografias/:id', requireAuth, (req, res) => {
   if (idx === -1) return res.status(404).json({ error: 'não encontrado' });
   const [item] = ecografias.splice(idx, 1);
   fs.unlinkSync(path.join(UPLOAD_DIR, item.filename));
-  fs.unlinkSync(path.join(THUMB_DIR, item.thumbFilename));
+  if (item.thumbFilename) {
+    fs.unlinkSync(path.join(THUMB_DIR, item.thumbFilename));
+  }
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
   logAction(`delete ${req.session.user} ${item.filename}`);
   res.json({ ok: true });
@@ -185,9 +195,19 @@ app.post('/api/ecografias/:id/share', requireAuth, (req, res) => {
 app.get('/share/:token', (req, res) => {
   const data = shares[req.params.token];
   if (!data || data.expire < Date.now()) return res.status(404).send('Link expirado');
+  res.sendFile(path.join(__dirname, 'public', 'share.html'));
+});
+
+app.post('/share/:token', (req, res) => {
+  const data = shares[req.params.token];
+  if (!data || data.expire < Date.now()) return res.status(404).send('Link expirado');
   const item = ecografias.find((e) => e.id === data.id);
   if (!item) return res.status(404).send('Não encontrado');
-  res.sendFile(path.join(UPLOAD_DIR, item.filename));
+  const { cpf } = req.body;
+  if (item.cpf && cpf === item.cpf) {
+    return res.sendFile(path.join(UPLOAD_DIR, item.filename));
+  }
+  res.status(403).send('CPF incorreto');
 });
 
 app.listen(PORT, () => {

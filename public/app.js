@@ -39,9 +39,15 @@ if (uploadForm) {
     data.forEach((item) => {
       const div = document.createElement('div');
       div.className = 'card';
-      const img = document.createElement('img');
-      img.src = '/thumbs/' + item.thumbFilename;
-      div.appendChild(img);
+      if (item.thumbFilename) {
+        const img = document.createElement('img');
+        img.src = '/thumbs/' + item.thumbFilename;
+        div.appendChild(img);
+      } else {
+        const span = document.createElement('span');
+        span.textContent = 'PDF';
+        div.appendChild(span);
+      }
       const p = document.createElement('p');
       p.textContent = `${item.patientName} - ${item.examDate}`;
       div.appendChild(p);
