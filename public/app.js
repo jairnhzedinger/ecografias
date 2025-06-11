@@ -31,6 +31,19 @@ const uploadForm = document.getElementById('uploadForm');
 if (uploadForm) {
   const lista = document.getElementById('lista');
   const searchInput = document.getElementById('searchInput');
+  const shareModal = document.getElementById('shareModal');
+  const shareLinkEl = document.getElementById('shareLink');
+  const shareClose = document.getElementById('shareClose');
+  const qrCanvas = document.getElementById('qrCanvas');
+
+  if (shareClose) {
+    shareClose.addEventListener('click', () => {
+      shareModal.style.display = 'none';
+    });
+    shareModal.addEventListener('click', (e) => {
+      if (e.target === shareModal) shareModal.style.display = 'none';
+    });
+  }
 
   async function carregar(q = '') {
     const res = await api('/api/ecografias' + (q ? `?q=${encodeURIComponent(q)}` : ''));
@@ -56,7 +69,10 @@ if (uploadForm) {
       shareBtn.onclick = async () => {
         const r = await api(`/api/ecografias/${item.id}/share`, { method: 'POST' });
         const d = await r.json();
-        prompt('Link de compartilhamento', location.origin + d.url);
+        const link = location.origin + d.url;
+        shareLinkEl.textContent = link;
+        QRCode.toCanvas(qrCanvas, link, { width: 200 });
+        shareModal.style.display = 'flex';
       };
       const delBtn = document.createElement('button');
       delBtn.textContent = 'Excluir';

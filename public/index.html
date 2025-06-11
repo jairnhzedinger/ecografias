@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Ecografias</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -40,7 +43,15 @@
 
     <h2>Lista de ecografias</h2>
     <div id="lista" class="grid"></div>
+    <div id="shareModal" class="modal">
+      <div class="modal-content">
+        <span id="shareClose" class="close">&times;</span>
+        <p id="shareLink"></p>
+        <canvas id="qrCanvas"></canvas>
+      </div>
+    </div>
   </div>
+  <script src="qrcode.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
