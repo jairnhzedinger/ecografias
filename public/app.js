@@ -71,8 +71,15 @@ if (uploadForm) {
         const d = await r.json();
         const link = location.origin + d.url;
         shareLinkEl.textContent = link;
+        shareLinkEl.href = link;
         QRCode.toCanvas(qrCanvas, link, { width: 200 });
         shareModal.style.display = 'flex';
+      };
+      const resendBtn = document.createElement('button');
+      resendBtn.textContent = 'Reenviar WhatsApp';
+      resendBtn.onclick = async () => {
+        await api(`/api/ecografias/${item.id}/resend`, { method: 'POST' });
+        alert('Link reenviado via WhatsApp');
       };
       const delBtn = document.createElement('button');
       delBtn.textContent = 'Excluir';
@@ -81,6 +88,7 @@ if (uploadForm) {
         carregar(searchInput.value);
       };
       div.appendChild(shareBtn);
+      div.appendChild(resendBtn);
       div.appendChild(delBtn);
       lista.appendChild(div);
     });
