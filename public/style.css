@@ -1,13 +1,13 @@
 body {
   font-family: Arial, sans-serif;
-  background: #f0f4f9;
+  background: linear-gradient(to right, #eef2f7, #cfd9e9);
   color: #333;
   margin: 0;
   padding: 0;
 }
 
 header {
-  background: #0066cc;
+  background: linear-gradient(90deg, #0066cc, #004999);
   color: white;
   padding: 20px;
   text-align: center;
@@ -30,6 +30,11 @@ header {
 
 .card {
   width: 200px;
+  background: #fafafa;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  text-align: center;
 }
 
 .card img {
@@ -63,4 +68,8 @@ button {
 
 button:hover {
   background: #004999;
+}
+
+.pdf-container {
+  margin-top: 20px;
 }
