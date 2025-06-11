@@ -4,6 +4,8 @@ const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
 const session = require('express-session');
+const { Client, LocalAuth } = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +28,21 @@ function logAction(msg) {
   fs.appendFileSync(LOG_PATH, `[${new Date().toISOString()}] ${msg}\n`);
 }
 
+let waClient = null;
+if (require.main === module) {
+  // Inicialização do WhatsApp Web somente quando o servidor é executado
+  waClient = new Client({
+    authStrategy: new LocalAuth({ dataPath: path.join(DATA_DIR, 'wa-auth') }),
+  });
+  waClient.on('qr', (qr) => {
+    qrcode.generate(qr, { small: true });
+  });
+  waClient.on('ready', () => {
+    console.log('WhatsApp pronto');
+  });
+  waClient.initialize();
+}
+
 let ecografias = [];
 try {
   ecografias = JSON.parse(fs.readFileSync(DB_PATH));
@@ -40,6 +57,8 @@ try {
   users = { admin: 'admin' };
   fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
 }
+
+const shares = {};
 
 // Configuração do multer
 const storage = multer.diskStorage({
@@ -123,7 +142,13 @@ app.get('/api/ecografias', requireAuth, (req, res) => {
 
 app.post('/api/ecografias', requireAuth, upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Arquivo não enviado' });
-  const { patientName = '', examDate = '', notes = '', cpf = '' } = req.body;
+  const {
+    patientName = '',
+    examDate = '',
+    notes = '',
+    cpf = '',
+    whatsapp = '',
+  } = req.body;
   const id = ecografias.length ? ecografias[ecografias.length - 1].id + 1 : 1;
   const filename = req.file.filename;
   let thumbFilename = null;
@@ -140,12 +165,25 @@ app.post('/api/ecografias', requireAuth, upload.single('file'), async (req, res)
     originalName: req.file.originalname,
     filename,
     thumbFilename,
+    whatsapp,
     timestamp: Date.now(),
   };
   ecografias.push(item);
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
   logAction(`upload ${req.session.user} ${filename}`);
-  res.status(201).json(item);
+
+  // gerar link de compartilhamento e enviar via WhatsApp
+  const token = Math.random().toString(36).substring(2, 10);
+  shares[token] = { id, expire: Date.now() + 3600 * 1000 };
+  const shareUrl = `${req.protocol}://${req.get('host')}/share/${token}`;
+  if (waClient && whatsapp) {
+    const message = `Seu exame de ecografia está pronto. Acesse: ${shareUrl}`;
+    waClient.sendMessage(`${whatsapp}@c.us`, message).catch((err) => {
+      console.error('Erro ao enviar WhatsApp:', err.message);
+    });
+  }
+
+  res.status(201).json({ ...item, shareUrl });
 });
 
 app.get('/api/ecografias/:id', requireAuth, (req, res) => {
@@ -182,7 +220,6 @@ app.put('/api/ecografias/:id', requireAuth, (req, res) => {
   res.json(item);
 });
 
-const shares = {};
 app.post('/api/ecografias/:id/share', requireAuth, (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
