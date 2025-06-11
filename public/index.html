@@ -3,54 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <title>Ecografias</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    #lista div { margin-bottom: 20px; }
-    #lista img { max-width: 200px; display: block; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Ecografias Online</h1>
+  <header>
+    <h1>Ecografias Online</h1>
+    <button id="logoutBtn" style="float:right;">Sair</button>
+  </header>
+  <div class="container">
+    <h2>Enviar nova ecografia</h2>
+    <form id="uploadForm">
+      <div>
+        <label>Paciente</label>
+        <input type="text" name="patientName" required>
+      </div>
+      <div>
+        <label>Data do exame</label>
+        <input type="date" name="examDate" required>
+      </div>
+      <div>
+        <label>Observações</label>
+        <textarea name="notes"></textarea>
+      </div>
+      <div>
+        <input type="file" name="file" accept="image/*" required />
+      </div>
+      <button type="submit">Enviar</button>
+    </form>
 
-  <h2>Enviar nova ecografia</h2>
-  <form id="uploadForm">
-    <input type="file" name="file" accept="image/*" required />
-    <button type="submit">Enviar</button>
-  </form>
+    <h2>Busca</h2>
+    <input type="text" id="searchInput" placeholder="Nome do paciente ou observação" />
 
-  <h2>Lista de ecografias</h2>
-  <div id="lista"></div>
-
-  <script>
-    async function carregarEcografias() {
-      const res = await fetch('/api/ecografias');
-      const data = await res.json();
-      const lista = document.getElementById('lista');
-      lista.innerHTML = '';
-      data.forEach(item => {
-        const div = document.createElement('div');
-        const img = document.createElement('img');
-        img.src = '/uploads/' + item.filename;
-        div.appendChild(img);
-        const p = document.createElement('p');
-        p.textContent = item.originalName;
-        div.appendChild(p);
-        lista.appendChild(div);
-      });
-    }
-
-    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      await fetch('/api/ecografias', {
-        method: 'POST',
-        body: formData
-      });
-      e.target.reset();
-      carregarEcografias();
-    });
-
-    carregarEcografias();
-  </script>
+    <h2>Lista de ecografias</h2>
+    <div id="lista" class="grid"></div>
+  </div>
+  <script src="app.js"></script>
 </body>
 </html>

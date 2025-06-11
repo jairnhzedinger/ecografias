@@ -13,6 +13,9 @@
   "type": "commonjs",
   "dependencies": {
     "express": "^5.1.0",
-    "multer": "^2.0.1"
+    "express-basic-auth": "^1.2.1",
+    "express-session": "^1.18.1",
+    "multer": "^2.0.1",
+    "sharp": "^0.34.2"
   }
 }
