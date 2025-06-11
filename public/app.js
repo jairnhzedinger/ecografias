@@ -30,6 +30,7 @@ if (loginForm) {
 const uploadForm = document.getElementById('uploadForm');
 if (uploadForm) {
   const lista = document.getElementById('lista');
+  const tbody = lista.querySelector('tbody');
   const searchInput = document.getElementById('searchInput');
   const shareModal = document.getElementById('shareModal');
   const shareLinkEl = document.getElementById('shareLink');
@@ -48,22 +49,23 @@ if (uploadForm) {
   async function carregar(q = '') {
     const res = await api('/api/ecografias' + (q ? `?q=${encodeURIComponent(q)}` : ''));
     const data = await res.json();
-    lista.innerHTML = '';
+    tbody.innerHTML = '';
     data.forEach((item) => {
-      const div = document.createElement('div');
-      div.className = 'card';
+      const tr = document.createElement('tr');
+      const previewTd = document.createElement('td');
       if (item.thumbFilename) {
         const img = document.createElement('img');
         img.src = '/thumbs/' + item.thumbFilename;
-        div.appendChild(img);
+        previewTd.appendChild(img);
       } else {
-        const span = document.createElement('span');
-        span.textContent = 'PDF';
-        div.appendChild(span);
+        previewTd.textContent = 'PDF';
       }
-      const p = document.createElement('p');
-      p.textContent = `${item.patientName} - ${item.examDate}`;
-      div.appendChild(p);
+      const patientTd = document.createElement('td');
+      patientTd.textContent = item.patientName;
+      const dateTd = document.createElement('td');
+      dateTd.textContent = item.examDate;
+      const actionsTd = document.createElement('td');
+
       const shareBtn = document.createElement('button');
       shareBtn.textContent = 'Compartilhar';
       shareBtn.onclick = async () => {
@@ -87,10 +89,14 @@ if (uploadForm) {
         await api(`/api/ecografias/${item.id}`, { method: 'DELETE' });
         carregar(searchInput.value);
       };
-      div.appendChild(shareBtn);
-      div.appendChild(resendBtn);
-      div.appendChild(delBtn);
-      lista.appendChild(div);
+      actionsTd.appendChild(shareBtn);
+      actionsTd.appendChild(resendBtn);
+      actionsTd.appendChild(delBtn);
+      tr.appendChild(previewTd);
+      tr.appendChild(patientTd);
+      tr.appendChild(dateTd);
+      tr.appendChild(actionsTd);
+      tbody.appendChild(tr);
     });
   }
 

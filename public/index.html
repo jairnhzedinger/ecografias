@@ -47,7 +47,17 @@
     <input type="text" id="searchInput" placeholder="Nome, CPF ou observação" />
 
     <h2>Lista de ecografias</h2>
-    <div id="lista" class="grid"></div>
+    <table id="lista" class="table">
+      <thead>
+        <tr>
+          <th>Prévia</th>
+          <th>Paciente</th>
+          <th>Data</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
     <div id="shareModal" class="modal">
       <div class="modal-content">
         <span id="shareClose" class="close">&times;</span>
