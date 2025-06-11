@@ -1,0 +1,66 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f4f9;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: #0066cc;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  max-width: 900px;
+  margin: 20px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.card {
+  width: 200px;
+}
+
+.card img {
+  width: 100%;
+  border-radius: 4px;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+input[type=text],
+input[type=password],
+input[type=date],
+textarea {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+button {
+  background: #0066cc;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #004999;
+}
