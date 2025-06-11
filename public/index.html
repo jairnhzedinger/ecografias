@@ -2,7 +2,8 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Ecografias</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoShare</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -10,7 +11,7 @@
 </head>
 <body>
   <header>
-    <h1>Ecografias Online</h1>
+    <h1>EcoShare</h1>
     <button id="logoutBtn" style="float:right;">Sair</button>
   </header>
   <div class="container">
@@ -50,7 +51,7 @@
     <div id="shareModal" class="modal">
       <div class="modal-content">
         <span id="shareClose" class="close">&times;</span>
-        <p id="shareLink"></p>
+        <a id="shareLink" href="#" target="_blank"></a>
         <canvas id="qrCanvas"></canvas>
       </div>
     </div>

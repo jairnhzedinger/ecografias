@@ -1,6 +1,6 @@
-# ecografias
+# EcoShare
 
-Sistema para disponibilizar ecografias online com upload e visualização de laudos em PDF.
+Sistema para disponibilizar ecografias online com upload, compartilhamento por WhatsApp e visualização de laudos em PDF.
 
 ## Como iniciar o projeto
 

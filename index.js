@@ -60,6 +60,20 @@ try {
 
 const shares = {};
 
+async function sendExamLink(item, shareUrl) {
+  if (!waClient || !item.whatsapp) return;
+  let phone = item.whatsapp.replace(/\D/g, '');
+  if (!phone.startsWith('55')) {
+    phone = `55${phone}`;
+  }
+  const msg = `Olá, seu exame de ecografia está disponível. Acesse: ${shareUrl}`;
+  try {
+    await waClient.sendMessage(`${phone}@c.us`, msg);
+  } catch (err) {
+    console.error('Erro ao enviar WhatsApp:', err.message);
+  }
+}
+
 // Configuração do multer
 const storage = multer.diskStorage({
   destination: UPLOAD_DIR,
@@ -176,20 +190,7 @@ app.post('/api/ecografias', requireAuth, upload.single('file'), async (req, res)
   const token = Math.random().toString(36).substring(2, 10);
   shares[token] = { id, expire: Date.now() + 3600 * 1000 };
   const shareUrl = `${req.protocol}://${req.get('host')}/share/${token}`;
-  if (waClient && whatsapp) {
-    let phone = whatsapp.replace(/\D/g, '');
-    if (!phone.startsWith('55')) {
-      phone = `55${phone}`;
-    }
-
-    try {
-      await waClient.sendMessage(`${phone}@c.us`,
-        'Olá, seu exame de ecografia está disponível.');
-      await waClient.sendMessage(`${phone}@c.us`, shareUrl);
-    } catch (err) {
-      console.error('Erro ao enviar WhatsApp:', err.message);
-    }
-  }
+  await sendExamLink(item, shareUrl);
 
   res.status(201).json({ ...item, shareUrl });
 });
@@ -235,6 +236,18 @@ app.post('/api/ecografias/:id/share', requireAuth, (req, res) => {
   const token = Math.random().toString(36).substring(2, 10);
   shares[token] = { id, expire: Date.now() + 3600 * 1000 };
   logAction(`share ${req.session.user} ${token} for ${item.filename}`);
+  res.json({ url: `/share/${token}` });
+});
+
+app.post('/api/ecografias/:id/resend', requireAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  const item = ecografias.find((e) => e.id === id);
+  if (!item) return res.status(404).json({ error: 'não encontrado' });
+  const token = Math.random().toString(36).substring(2, 10);
+  shares[token] = { id, expire: Date.now() + 3600 * 1000 };
+  const shareUrl = `${req.protocol}://${req.get('host')}/share/${token}`;
+  await sendExamLink(item, shareUrl);
+  logAction(`resend ${req.session.user} ${token} for ${item.filename}`);
   res.json({ url: `/share/${token}` });
 });
 
