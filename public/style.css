@@ -42,6 +42,22 @@ header {
   border-radius: 4px;
 }
 
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.table img {
+  max-width: 100px;
+}
+
 form div {
   margin-bottom: 10px;
 }

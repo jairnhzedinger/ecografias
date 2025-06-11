@@ -29,6 +29,7 @@ function logAction(msg) {
 }
 
 let waClient = null;
+let waReady = false;
 if (require.main === module) {
   // Inicialização do WhatsApp Web somente quando o servidor é executado
   waClient = new Client({
@@ -38,9 +39,22 @@ if (require.main === module) {
     qrcode.generate(qr, { small: true });
   });
   waClient.on('ready', () => {
+    waReady = true;
     console.log('WhatsApp pronto');
   });
   waClient.initialize();
+}
+
+async function ensureWaReady() {
+  if (waReady) return;
+  if (!waClient) return;
+  await new Promise((resolve) => {
+    if (waReady) return resolve();
+    waClient.once('ready', () => {
+      waReady = true;
+      resolve();
+    });
+  });
 }
 
 let ecografias = [];
@@ -62,6 +76,7 @@ const shares = {};
 
 async function sendExamLink(item, shareUrl) {
   if (!waClient || !item.whatsapp) return;
+  await ensureWaReady();
   let phone = item.whatsapp.replace(/\D/g, '');
   if (!phone.startsWith('55')) {
     phone = `55${phone}`;
