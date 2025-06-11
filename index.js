@@ -177,10 +177,18 @@ app.post('/api/ecografias', requireAuth, upload.single('file'), async (req, res)
   shares[token] = { id, expire: Date.now() + 3600 * 1000 };
   const shareUrl = `${req.protocol}://${req.get('host')}/share/${token}`;
   if (waClient && whatsapp) {
-    const message = `Seu exame de ecografia está pronto. Acesse: ${shareUrl}`;
-    waClient.sendMessage(`${whatsapp}@c.us`, message).catch((err) => {
+    let phone = whatsapp.replace(/\D/g, '');
+    if (!phone.startsWith('55')) {
+      phone = `55${phone}`;
+    }
+
+    try {
+      await waClient.sendMessage(`${phone}@c.us`,
+        'Olá, seu exame de ecografia está disponível.');
+      await waClient.sendMessage(`${phone}@c.us`, shareUrl);
+    } catch (err) {
       console.error('Erro ao enviar WhatsApp:', err.message);
-    });
+    }
   }
 
   res.status(201).json({ ...item, shareUrl });
