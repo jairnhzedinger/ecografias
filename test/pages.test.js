@@ -27,4 +27,10 @@ describe('Paginas publicas', () => {
     expect(res.text).toContain('id="loginForm"');
     expect(res.text).toContain('action="/login"');
   });
+
+  test('login usa imagem de placeholder', async () => {
+    const res = await request(app).get('/login.html');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('https://placehold.co/18x18');
+  });
 });
