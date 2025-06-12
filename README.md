@@ -19,6 +19,15 @@ O servidor iniciará na porta `3000` por padrão e servirá arquivos estáticos 
 - `GET /api/ecografias` - lista todas as ecografias cadastradas.
 - `POST /api/ecografias` - envia um novo laudo em PDF (campo `file`). O corpo também deve conter `patientName`, `cpf`, `whatsapp`, `examDate` e `notes`. Após o envio, um link de compartilhamento é enviado automaticamente para o WhatsApp informado.
 - `GET /uploads/<arquivo>` - acessa o arquivo enviado (requer autenticação).
+- `GET /api/message` - obtém o texto utilizado para envio via WhatsApp.
+- `POST /api/message` - atualiza o texto da mensagem enviada.
+- `GET /api/downloads` - lista registros de downloads.
+- `GET /api/stats` - retorna estatísticas gerais.
+- `GET /api/whatsapp/status` - informa se o WhatsApp está conectado.
+- `POST /api/whatsapp/reset` - reinicia a sessão do WhatsApp.
+- `GET /api/ecografias.csv` - exporta a lista de exames em CSV.
+- `POST /api/ecografias/:id/unshare` - desativa o compartilhamento de um exame.
+- `POST /api/users/:username/password` - altera a senha do usuário informado.
 
 ## Interface Web
 
