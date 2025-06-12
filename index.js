@@ -30,6 +30,10 @@ const LOG_PATH = path.join(LOG_DIR, 'actions.log');
 const DOWNLOAD_LOG_PATH = path.join(DATA_DIR, 'downloads.json');
 const MESSAGE_PATH = path.join(DATA_DIR, 'message.txt');
 
+function normalizeCpf(cpf) {
+  return typeof cpf === 'string' ? cpf.replace(/\D/g, '') : '';
+}
+
 function logAction(msg) {
   fs.appendFileSync(LOG_PATH, `[${new Date().toISOString()}] ${msg}\n`);
 }
@@ -317,7 +321,7 @@ app.post('/api/me/cpf', requireAuth, (req, res) => {
   }
   const user = users[req.session.user.username];
   if (!user) return res.status(404).json({ error: 'não encontrado' });
-  user.cpf = cpf.trim();
+  user.cpf = normalizeCpf(cpf.trim());
   fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
   req.session.user.cpf = user.cpf;
   req.session.needCpf = false;
@@ -474,17 +478,19 @@ app.get('/api/ecografias', requireAuth, (req, res) => {
   let { q, start, end, shared } = req.query;
   let results = ecografias;
   if (req.session.user.role === 'paciente') {
+    const ucpf = normalizeCpf(req.session.user.cpf);
     results = results.filter(
-      (e) => e.cpf && req.session.user.cpf && e.cpf === req.session.user.cpf
+      (e) => normalizeCpf(e.cpf) && ucpf && normalizeCpf(e.cpf) === ucpf
     );
   }
   if (q) {
-    q = q.toLowerCase();
+    const ql = q.toLowerCase();
+    const qcpf = normalizeCpf(q);
     results = results.filter(
       (e) =>
-        e.patientName.toLowerCase().includes(q) ||
-        (e.cpf && e.cpf.includes(q)) ||
-        (e.notes && e.notes.toLowerCase().includes(q))
+        e.patientName.toLowerCase().includes(ql) ||
+        (e.cpf && normalizeCpf(e.cpf).includes(qcpf)) ||
+        (e.notes && e.notes.toLowerCase().includes(ql))
     );
   }
   if (start) {
@@ -514,6 +520,7 @@ app.post(
     cpf = '',
     whatsapp = '',
   } = req.body;
+  const normCpf = normalizeCpf(cpf);
   const id = ecografias.length ? ecografias[ecografias.length - 1].id + 1 : 1;
   const filename = req.file.filename;
   let thumbFilename = null;
@@ -538,7 +545,7 @@ app.post(
   const item = {
     id,
     patientName,
-    cpf,
+    cpf: normCpf,
     examDate,
     notes,
     originalName: req.file.originalname,
@@ -567,7 +574,7 @@ app.get('/api/ecografias/:id', requireAuth, (req, res) => {
   if (!item) return res.status(404).json({ error: 'não encontrado' });
   if (
     req.session.user.role === 'paciente' &&
-    item.patientName !== req.session.user.username
+    normalizeCpf(item.cpf) !== normalizeCpf(req.session.user.cpf)
   ) {
     return res.status(403).json({ error: 'forbidden' });
   }
@@ -580,7 +587,7 @@ app.get('/api/ecografias/:id/pdf', requireAuth, (req, res) => {
   if (!item) return res.status(404).json({ error: 'não encontrado' });
   if (
     req.session.user.role === 'paciente' &&
-    item.patientName !== req.session.user.username
+    normalizeCpf(item.cpf) !== normalizeCpf(req.session.user.cpf)
   ) {
     return res.status(403).json({ error: 'forbidden' });
   }
@@ -611,7 +618,7 @@ app.put('/api/ecografias/:id', requireRole(['admin', 'medico']), (req, res) => {
   if (patientName !== undefined) item.patientName = patientName;
   if (examDate !== undefined) item.examDate = examDate;
   if (notes !== undefined) item.notes = notes;
-  if (cpf !== undefined) item.cpf = cpf;
+  if (cpf !== undefined) item.cpf = normalizeCpf(cpf);
   if (whatsapp !== undefined) item.whatsapp = whatsapp;
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
   logAction(`update ${req.session.user.username} ${item.filename}`);
@@ -668,7 +675,7 @@ app.post('/share/:token', (req, res) => {
   const item = ecografias.find((e) => e.id === data.id);
   if (!item) return res.status(404).send('Não encontrado');
   const { cpf } = req.body;
-  if (item.cpf && cpf === item.cpf) {
+  if (item.cpf && normalizeCpf(cpf) === normalizeCpf(item.cpf)) {
     downloads.push({ id: item.id, timestamp: Date.now() });
     fs.writeFileSync(DOWNLOAD_LOG_PATH, JSON.stringify(downloads, null, 2));
     return res.sendFile(path.join(UPLOAD_DIR, item.filename));
