@@ -41,5 +41,6 @@ test('novo usuario google vira paciente', async () => {
     username: 'guser@test.com',
     role: 'paciente',
     name: 'G User',
+    picture: 'p',
   });
 });

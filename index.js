@@ -256,10 +256,22 @@ app.get('/auth/google/callback', async (req, res) => {
     const info = await oauth2.userinfo.get();
     const email = info.data.email || info.data.id;
     if (!users[email]) {
-      users[email] = { role: 'paciente' };
-      fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+      users[email] = {
+        role: 'paciente',
+        name: info.data.name,
+        picture: info.data.picture,
+      };
+    } else {
+      users[email].name = info.data.name;
+      users[email].picture = info.data.picture;
     }
-    req.session.user = { username: email, role: users[email].role };
+    fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+    req.session.user = {
+      username: email,
+      role: users[email].role,
+      name: users[email].name,
+      picture: users[email].picture,
+    };
     logAction(`login ${email} google`);
     res.redirect('/index.html');
   } catch (err) {
