@@ -637,6 +637,9 @@ app.delete('/api/ecografias/:id', requireRole(['admin', 'medico']), (req, res) =
   if (item.thumbFilename) {
     fs.unlinkSync(path.join(THUMB_DIR, item.thumbFilename));
   }
+  for (const [t, data] of Object.entries(shares)) {
+    if (data.id === id) delete shares[t];
+  }
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
   logAction(`delete ${req.session.user.username} ${item.filename}`);
   res.json({ ok: true });
