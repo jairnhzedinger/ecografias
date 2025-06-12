@@ -9,8 +9,7 @@ const pdfThumb = require('pdf-thumbnail');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const bcrypt = require('bcryptjs');
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const { google } = require('googleapis');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -144,26 +143,13 @@ app.use(
     saveUninitialized: true,
   })
 );
-app.use(passport.initialize());
-app.use(passport.session());
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((obj, done) => done(null, obj));
 const GOOGLE_CALLBACK_URL =
   process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback';
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID || 'dummy',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'dummy',
-      callbackURL: GOOGLE_CALLBACK_URL,
-    },
-    (accessToken, refreshToken, profile, done) => {
-      const email =
-        profile.emails && profile.emails[0] && profile.emails[0].value;
-      done(null, { username: email || profile.id });
-    }
-  )
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID || 'dummy',
+  process.env.GOOGLE_CLIENT_SECRET || 'dummy',
+  GOOGLE_CALLBACK_URL
 );
 
 function requireAuth(req, res, next) {
@@ -208,20 +194,36 @@ app.post('/login', (req, res) => {
   res.status(401).json({ error: 'credenciais inválidas' });
 });
 
-app.get(
-  '/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
+app.get('/auth/google', (req, res) => {
+  const state = Math.random().toString(36).substring(2);
+  req.session.state = state;
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'online',
+    scope: ['profile', 'email'],
+    state,
+  });
+  res.redirect(url);
+});
 
-app.get(
-  '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login.html' }),
-  (req, res) => {
-    req.session.user = req.user.username;
-    logAction(`login ${req.user.username} google`);
-    res.redirect('/index.html');
+app.get('/auth/google/callback', async (req, res) => {
+  const { code, state, error } = req.query;
+  if (error || state !== req.session.state) {
+    return res.redirect('/login.html');
   }
-);
+  try {
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+    const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+    const info = await oauth2.userinfo.get();
+    const email = info.data.email || info.data.id;
+    req.session.user = email;
+    logAction(`login ${email} google`);
+    res.redirect('/index.html');
+  } catch (err) {
+    console.error('Erro login google:', err.message);
+    res.redirect('/login.html');
+  }
+});
 
 app.post('/logout', (req, res) => {
   logAction(`logout ${req.session.user}`);
