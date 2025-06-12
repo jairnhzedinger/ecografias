@@ -221,6 +221,21 @@ app.delete('/api/users/:username', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/api/users/:username/password', requireAuth, (req, res) => {
+  const { username } = req.params;
+  const { password } = req.body;
+  if (!users[username]) {
+    return res.status(404).json({ error: 'não encontrado' });
+  }
+  if (typeof password !== 'string' || !password.trim()) {
+    return res.status(400).json({ error: 'senha inválida' });
+  }
+  users[username] = bcrypt.hashSync(password, 10);
+  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+  logAction(`update-pass ${req.session.user} ${username}`);
+  res.json({ ok: true });
+});
+
 app.get('/api/logs', requireAuth, (req, res) => {
   res.download(LOG_PATH, 'actions.log');
 });
@@ -232,6 +247,80 @@ app.get('/api/backup', requireAuth, (req, res) => {
   archive.directory(UPLOAD_DIR, 'uploads');
   archive.file(DB_PATH, { name: 'ecografias.json' });
   archive.finalize();
+});
+
+app.get('/api/message', requireAuth, (req, res) => {
+  let template = '';
+  try {
+    template = fs.readFileSync(MESSAGE_PATH, 'utf8');
+  } catch (_) {
+    template = 'Olá, seu exame de ecografia está disponível. Acesse: {link}';
+  }
+  res.json({ message: template });
+});
+
+app.post('/api/message', requireAuth, (req, res) => {
+  const { message } = req.body;
+  if (typeof message !== 'string' || !message.trim()) {
+    return res.status(400).json({ error: 'mensagem inválida' });
+  }
+  fs.writeFileSync(MESSAGE_PATH, message);
+  logAction(`update-message ${req.session.user}`);
+  res.json({ ok: true });
+});
+
+app.get('/api/downloads', requireAuth, (req, res) => {
+  const { id } = req.query;
+  let list = downloads;
+  if (id) {
+    const num = Number(id);
+    list = downloads.filter((d) => d.id === num);
+  }
+  res.json(list);
+});
+
+app.get('/api/stats', requireAuth, (req, res) => {
+  res.json({
+    totalEcografias: ecografias.length,
+    totalDownloads: downloads.length,
+  });
+});
+
+app.get('/api/whatsapp/status', requireAuth, (req, res) => {
+  res.json({ ready: waReady });
+});
+
+app.post('/api/whatsapp/reset', requireAuth, (req, res) => {
+  if (waClient) {
+    waClient.destroy();
+    waReady = false;
+    waClient.initialize();
+  }
+  logAction(`wa-reset ${req.session.user}`);
+  res.json({ ok: true });
+});
+
+app.get('/api/ecografias.csv', requireAuth, (req, res) => {
+  const header = [
+    'id',
+    'patientName',
+    'examDate',
+    'notes',
+    'filename',
+    'whatsapp',
+    'timestamp',
+  ];
+  const lines = ecografias.map((e) =>
+    header
+      .map((h) => {
+        const val = e[h] ?? '';
+        return `"${String(val).replace(/"/g, '""')}"`;
+      })
+      .join(',')
+  );
+  res.type('text/csv');
+  res.attachment('ecografias.csv');
+  res.send([header.join(','), ...lines].join('\n'));
 });
 
 app.get('/api/ecografias', requireAuth, (req, res) => {
@@ -323,6 +412,15 @@ app.get('/api/ecografias/:id', requireAuth, (req, res) => {
   res.json(item);
 });
 
+app.get('/api/ecografias/:id/pdf', requireAuth, (req, res) => {
+  const id = Number(req.params.id);
+  const item = ecografias.find((e) => e.id === id);
+  if (!item) return res.status(404).json({ error: 'não encontrado' });
+  const filePath = path.join(UPLOAD_DIR, item.filename);
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'não encontrado' });
+  res.sendFile(filePath);
+});
+
 app.delete('/api/ecografias/:id', requireAuth, (req, res) => {
   const id = Number(req.params.id);
   const idx = ecografias.findIndex((e) => e.id === id);
@@ -356,8 +454,9 @@ app.post('/api/ecografias/:id/share', requireAuth, (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
+  const expiresIn = Number(req.body && req.body.expiresIn) || 3600 * 1000;
   const token = Math.random().toString(36).substring(2, 10);
-  shares[token] = { id, expire: Date.now() + 3600 * 1000 };
+  shares[token] = { id, expire: Date.now() + expiresIn };
   item.shared = true;
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
   logAction(`share ${req.session.user} ${token} for ${item.filename}`);
@@ -368,14 +467,25 @@ app.post('/api/ecografias/:id/resend', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
+  const expiresIn = Number(req.body && req.body.expiresIn) || 3600 * 1000;
   const token = Math.random().toString(36).substring(2, 10);
-  shares[token] = { id, expire: Date.now() + 3600 * 1000 };
+  shares[token] = { id, expire: Date.now() + expiresIn };
   const shareUrl = `${req.protocol}://${req.get('host')}/share/${token}`;
   await sendExamLink(item, shareUrl);
   item.shared = true;
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
   logAction(`resend ${req.session.user} ${token} for ${item.filename}`);
   res.json({ url: `/share/${token}` });
+});
+
+app.post('/api/ecografias/:id/unshare', requireAuth, (req, res) => {
+  const id = Number(req.params.id);
+  const item = ecografias.find((e) => e.id === id);
+  if (!item) return res.status(404).json({ error: 'não encontrado' });
+  item.shared = false;
+  fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
+  logAction(`unshare ${req.session.user} ${item.filename}`);
+  res.json({ ok: true });
 });
 
 app.get('/share/:token', (req, res) => {
