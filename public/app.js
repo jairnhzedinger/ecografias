@@ -1,15 +1,3 @@
-function initTheme() {
-  const btn = document.getElementById('themeToggle');
-  if (!btn) return;
-  if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark');
-  }
-  btn.addEventListener('click', () => {
-    document.body.classList.toggle('dark');
-    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-  });
-}
-
 async function api(url, options) {
   const res = await fetch(url, options);
   if (res.status === 401) {
@@ -40,7 +28,21 @@ async function initProfileMenu() {
   });
 }
 
-initTheme();
+
+function initScrollEffects() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('show');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.scroll-fade').forEach((el) => obs.observe(el));
+  window.applyScroll = (el) => obs.observe(el);
+}
+
+initScrollEffects();
 
 // Login page
 const loginForm = document.getElementById('loginForm');
@@ -213,6 +215,7 @@ if (uploadForm) {
       tr.appendChild(dateTd);
       tr.appendChild(actionsTd);
       tbody.appendChild(tr);
+  if (window.applyScroll) window.applyScroll(tr);
     });
   }
 
@@ -261,6 +264,7 @@ if (uploadForm) {
       tr.appendChild(nameTd);
       tr.appendChild(actTd);
       userList.appendChild(tr);
+  if (window.applyScroll) window.applyScroll(tr);
     });
   }
 
@@ -311,6 +315,7 @@ if (uploadForm) {
       tr.appendChild(idTd);
       tr.appendChild(dateTd);
       downloadsBody.appendChild(tr);
+  if (window.applyScroll) window.applyScroll(tr);
     });
   }
   if (refreshStats) {
@@ -378,6 +383,7 @@ if (painel) {
       card.appendChild(link);
       card.appendChild(date);
       grid.appendChild(card);
+      if (window.applyScroll) window.applyScroll(card);
     });
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await api('/logout', { method: 'POST' });
