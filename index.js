@@ -332,7 +332,11 @@ app.get('/auth/google/callback', async (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  logAction(`logout ${req.session.user.username}`);
+  if (req.session.user && req.session.user.username) {
+    logAction(`logout ${req.session.user.username}`);
+  } else {
+    logAction('logout');
+  }
   req.session.destroy(() => {
     res.json({ ok: true });
   });
