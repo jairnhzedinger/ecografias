@@ -10,11 +10,11 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
+  <header class="glass">
     <h1>EcoShare</h1>
     <button id="logoutBtn" style="float:right;">Sair</button>
   </header>
-  <div class="container">
+  <div class="container glass">
     <h2>Enviar nova ecografia</h2>
     <form id="uploadForm">
       <div>
@@ -47,6 +47,7 @@
     <input type="text" id="searchInput" placeholder="Nome, CPF ou observação" />
 
     <h2>Lista de ecografias</h2>
+    <div class="table-wrapper">
     <table id="lista" class="table">
       <thead>
         <tr>
@@ -58,8 +59,9 @@
       </thead>
       <tbody></tbody>
     </table>
+    </div>
     <div id="shareModal" class="modal">
-      <div class="modal-content">
+      <div class="modal-content glass">
         <span id="shareClose" class="close">&times;</span>
         <a id="shareLink" href="#" target="_blank"></a>
         <canvas id="qrCanvas"></canvas>

@@ -1,14 +1,22 @@
 body {
   font-family: 'Inter', Arial, sans-serif;
-  background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+  background: linear-gradient(135deg, #c0d4ff, #f5e7ff);
   color: #333;
   margin: 0;
   padding: 0;
 }
 
+.glass {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
 header {
-  background: linear-gradient(90deg, #4f7db9, #335c81);
-  color: white;
+  color: #333;
   padding: 20px;
   text-align: center;
 }
@@ -16,10 +24,7 @@ header {
 .container {
   max-width: 900px;
   margin: 20px auto;
-  background: white;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .grid {
@@ -45,6 +50,10 @@ header {
 .table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.table-wrapper {
+  overflow-x: auto;
 }
 
 .table th,
@@ -109,10 +118,13 @@ button:hover {
 }
 
 .modal-content {
-  background: white;
-  padding: 20px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  padding: 20px;
   text-align: center;
   position: relative;
 }
@@ -138,5 +150,12 @@ button:hover {
   }
   .card {
     width: 100%;
+  }
+  .container {
+    margin: 10px;
+    padding: 15px;
+  }
+  .table {
+    display: block;
   }
 }
