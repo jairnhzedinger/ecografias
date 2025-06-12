@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
 const session = require('express-session');
+const helmet = require('helmet');
 const archiver = require('archiver');
 const pdfThumb = require('pdf-thumbnail');
 const { Client, LocalAuth } = require('whatsapp-web.js');
@@ -146,13 +147,17 @@ const upload = multer({
 });
 
 
+const SESSION_SECRET =
+  process.env.SESSION_SECRET || require('crypto').randomBytes(16).toString('hex');
+
+app.use(helmet());
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 app.use('/thumbs', express.static(THUMB_DIR));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
-    secret: 'keyboard cat',
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
   })
