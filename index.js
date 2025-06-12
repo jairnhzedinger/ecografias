@@ -4,6 +4,8 @@ const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
 const session = require('express-session');
+const archiver = require('archiver');
+const pdfThumb = require('pdf-thumbnail');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const bcrypt = require('bcryptjs');
@@ -24,6 +26,8 @@ fs.mkdirSync(LOG_DIR, { recursive: true });
 const DB_PATH = path.join(DATA_DIR, 'ecografias.json');
 const USERS_PATH = path.join(DATA_DIR, 'users.json');
 const LOG_PATH = path.join(LOG_DIR, 'actions.log');
+const DOWNLOAD_LOG_PATH = path.join(DATA_DIR, 'downloads.json');
+const MESSAGE_PATH = path.join(DATA_DIR, 'message.txt');
 
 function logAction(msg) {
   fs.appendFileSync(LOG_PATH, `[${new Date().toISOString()}] ${msg}\n`);
@@ -65,6 +69,13 @@ try {
   ecografias = [];
 }
 
+let downloads = [];
+try {
+  downloads = JSON.parse(fs.readFileSync(DOWNLOAD_LOG_PATH));
+} catch (_) {
+  downloads = [];
+}
+
 let users = {};
 try {
   users = JSON.parse(fs.readFileSync(USERS_PATH));
@@ -83,7 +94,13 @@ async function sendExamLink(item, shareUrl) {
   if (!phone.startsWith('55')) {
     phone = `55${phone}`;
   }
-  const msg = `Olá, seu exame de ecografia está disponível. Acesse: ${shareUrl}`;
+  let template = 'Olá, seu exame de ecografia está disponível. Acesse: {link}';
+  try {
+    template = fs.readFileSync(MESSAGE_PATH, 'utf8');
+  } catch (_) {
+    /* ignore */
+  }
+  const msg = template.replace('{link}', shareUrl);
   try {
     await waClient.sendMessage(`${phone}@c.us`, msg);
   } catch (err) {
@@ -175,8 +192,50 @@ app.post('/logout', (req, res) => {
   });
 });
 
+app.get('/api/users', requireAuth, (req, res) => {
+  res.json(Object.keys(users));
+});
+
+app.post('/api/users', requireAuth, (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'dados inválidos' });
+  }
+  if (users[username]) {
+    return res.status(400).json({ error: 'usuário existente' });
+  }
+  users[username] = bcrypt.hashSync(password, 10);
+  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+  logAction(`create-user ${req.session.user} ${username}`);
+  res.json({ ok: true });
+});
+
+app.delete('/api/users/:username', requireAuth, (req, res) => {
+  const { username } = req.params;
+  if (!users[username]) {
+    return res.status(404).json({ error: 'não encontrado' });
+  }
+  delete users[username];
+  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+  logAction(`delete-user ${req.session.user} ${username}`);
+  res.json({ ok: true });
+});
+
+app.get('/api/logs', requireAuth, (req, res) => {
+  res.download(LOG_PATH, 'actions.log');
+});
+
+app.get('/api/backup', requireAuth, (req, res) => {
+  res.attachment('backup.zip');
+  const archive = archiver('zip');
+  archive.pipe(res);
+  archive.directory(UPLOAD_DIR, 'uploads');
+  archive.file(DB_PATH, { name: 'ecografias.json' });
+  archive.finalize();
+});
+
 app.get('/api/ecografias', requireAuth, (req, res) => {
-  let { q } = req.query;
+  let { q, start, end, shared } = req.query;
   let results = ecografias;
   if (q) {
     q = q.toLowerCase();
@@ -186,6 +245,17 @@ app.get('/api/ecografias', requireAuth, (req, res) => {
         (e.cpf && e.cpf.includes(q)) ||
         (e.notes && e.notes.toLowerCase().includes(q))
     );
+  }
+  if (start) {
+    results = results.filter((e) => e.examDate && e.examDate >= start);
+  }
+  if (end) {
+    results = results.filter((e) => e.examDate && e.examDate <= end);
+  }
+  if (shared === 'true') {
+    results = results.filter((e) => e.shared);
+  } else if (shared === 'false') {
+    results = results.filter((e) => !e.shared);
   }
   res.json(results);
 });
@@ -205,6 +275,20 @@ app.post('/api/ecografias', requireAuth, upload.single('file'), async (req, res)
   if (req.file.mimetype.startsWith('image/')) {
     thumbFilename = 'thumb-' + filename;
     await sharp(req.file.path).resize(200).toFile(path.join(THUMB_DIR, thumbFilename));
+  } else if (req.file.mimetype === 'application/pdf') {
+    thumbFilename = 'thumb-' + filename.replace(path.extname(filename), '.png');
+    try {
+      const stream = await pdfThumb(fs.readFileSync(req.file.path), { resize: { width: 200 } });
+      await new Promise((resolve, reject) => {
+        const out = fs.createWriteStream(path.join(THUMB_DIR, thumbFilename));
+        stream.pipe(out);
+        out.on('finish', resolve);
+        out.on('error', reject);
+      });
+    } catch (err) {
+      console.error('Erro ao gerar miniatura do PDF:', err.message);
+      thumbFilename = null;
+    }
   }
   const item = {
     id,
@@ -217,6 +301,7 @@ app.post('/api/ecografias', requireAuth, upload.single('file'), async (req, res)
     thumbFilename,
     whatsapp,
     timestamp: Date.now(),
+    shared: true,
   };
   ecografias.push(item);
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
@@ -256,10 +341,12 @@ app.put('/api/ecografias/:id', requireAuth, (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
-  const { patientName, examDate, notes } = req.body;
+  const { patientName, examDate, notes, cpf, whatsapp } = req.body;
   if (patientName !== undefined) item.patientName = patientName;
   if (examDate !== undefined) item.examDate = examDate;
   if (notes !== undefined) item.notes = notes;
+  if (cpf !== undefined) item.cpf = cpf;
+  if (whatsapp !== undefined) item.whatsapp = whatsapp;
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
   logAction(`update ${req.session.user} ${item.filename}`);
   res.json(item);
@@ -271,6 +358,8 @@ app.post('/api/ecografias/:id/share', requireAuth, (req, res) => {
   if (!item) return res.status(404).json({ error: 'não encontrado' });
   const token = Math.random().toString(36).substring(2, 10);
   shares[token] = { id, expire: Date.now() + 3600 * 1000 };
+  item.shared = true;
+  fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
   logAction(`share ${req.session.user} ${token} for ${item.filename}`);
   res.json({ url: `/share/${token}` });
 });
@@ -283,6 +372,8 @@ app.post('/api/ecografias/:id/resend', requireAuth, async (req, res) => {
   shares[token] = { id, expire: Date.now() + 3600 * 1000 };
   const shareUrl = `${req.protocol}://${req.get('host')}/share/${token}`;
   await sendExamLink(item, shareUrl);
+  item.shared = true;
+  fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
   logAction(`resend ${req.session.user} ${token} for ${item.filename}`);
   res.json({ url: `/share/${token}` });
 });
@@ -300,6 +391,8 @@ app.post('/share/:token', (req, res) => {
   if (!item) return res.status(404).send('Não encontrado');
   const { cpf } = req.body;
   if (item.cpf && cpf === item.cpf) {
+    downloads.push({ id: item.id, timestamp: Date.now() });
+    fs.writeFileSync(DOWNLOAD_LOG_PATH, JSON.stringify(downloads, null, 2));
     return res.sendFile(path.join(UPLOAD_DIR, item.filename));
   }
   res.status(403).send('CPF incorreto');
