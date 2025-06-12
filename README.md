@@ -58,6 +58,8 @@ Para executar a suíte de testes utilize `npm test`.
 ## Interface Web
 
 A interface web disponível em `/` permite enviar novas ecografias e visualizar a lista de imagens cadastradas.
+Os usuários possuem papéis de **admin**, **medico** ou **paciente**. Somente administradores conseguem gerenciar usuários.
+Pacientes enxergam apenas seus próprios exames.
 Para que um paciente visualize seu laudo, um link de compartilhamento é gerado pelo administrador. O paciente precisa acessar esse link e informar o CPF cadastrado para liberar o PDF.
 
 Ao iniciar o servidor é exibido um QR code no terminal para conectar o WhatsApp Web. A conta associada será utilizada para enviar automaticamente o link do laudo para o número informado no cadastro.

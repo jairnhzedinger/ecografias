@@ -43,6 +43,23 @@ if (loginForm) {
 // Index page
 const uploadForm = document.getElementById('uploadForm');
 if (uploadForm) {
+  (async function initIndex() {
+    let userRole = 'medico';
+    try {
+      const meRes = await api('/api/me');
+      const me = await meRes.json();
+      userRole = me.role;
+    } catch (_) {}
+
+    if (userRole !== 'admin') {
+      document.querySelector('[data-tab="usuarios"]').style.display = 'none';
+    }
+    if (userRole === 'paciente') {
+      document.querySelector('[data-tab="upload"]').style.display = 'none';
+      document.querySelector('[data-tab="mensagem"]').style.display = 'none';
+      document.querySelector('[data-tab="stats"]').style.display = 'none';
+    }
+
   const lista = document.getElementById('lista');
   const tbody = lista.querySelector('tbody');
   const searchInput = document.getElementById('searchInput');
@@ -133,11 +150,15 @@ if (uploadForm) {
       pdfLink.textContent = 'PDF';
       pdfLink.href = `/api/ecografias/${item.id}/pdf`;
       pdfLink.target = '_blank';
-      actionsTd.appendChild(shareBtn);
-      actionsTd.appendChild(resendBtn);
-      actionsTd.appendChild(delBtn);
-      actionsTd.appendChild(unshareBtn);
-      actionsTd.appendChild(pdfLink);
+      if (userRole === 'paciente') {
+        actionsTd.appendChild(pdfLink);
+      } else {
+        actionsTd.appendChild(shareBtn);
+        actionsTd.appendChild(resendBtn);
+        actionsTd.appendChild(delBtn);
+        actionsTd.appendChild(unshareBtn);
+        actionsTd.appendChild(pdfLink);
+      }
       tr.appendChild(previewTd);
       tr.appendChild(patientTd);
       tr.appendChild(dateTd);
@@ -173,8 +194,21 @@ if (uploadForm) {
         await api(`/api/users/${u}`, { method: 'DELETE' });
         loadUsers();
       };
+      const roleBtn = document.createElement('button');
+      roleBtn.textContent = 'Papel';
+      roleBtn.onclick = async () => {
+        const role = prompt('admin, medico ou paciente?');
+        if (role) {
+          await api(`/api/users/${u}/role`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role }),
+          });
+        }
+      };
       actTd.appendChild(passBtn);
       actTd.appendChild(delBtn);
+      actTd.appendChild(roleBtn);
       tr.appendChild(nameTd);
       tr.appendChild(actTd);
       userList.appendChild(tr);
@@ -263,4 +297,5 @@ if (uploadForm) {
 
   searchInput.addEventListener('input', () => carregar(searchInput.value));
   carregar();
+  })();
 }

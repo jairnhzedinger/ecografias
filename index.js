@@ -79,10 +79,17 @@ try {
 
 let users = {};
 try {
-  users = JSON.parse(fs.readFileSync(USERS_PATH));
+  const raw = JSON.parse(fs.readFileSync(USERS_PATH));
+  for (const [u, val] of Object.entries(raw)) {
+    if (typeof val === 'string') {
+      users[u] = { password: val, role: u === 'admin' ? 'admin' : 'medico' };
+    } else {
+      users[u] = val;
+    }
+  }
 } catch (_) {
   const hash = bcrypt.hashSync('admin', 10);
-  users = { admin: hash };
+  users = { admin: { password: hash, role: 'admin' } };
   fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
 }
 
@@ -168,6 +175,20 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: 'não autenticado' });
 }
 
+function requireRole(role) {
+  return (req, res, next) => {
+    if (
+      req.session &&
+      req.session.user &&
+      (req.session.user.role === role ||
+        (Array.isArray(role) && role.includes(req.session.user.role)))
+    ) {
+      return next();
+    }
+    res.status(403).json({ error: 'forbidden' });
+  };
+}
+
 app.get('/uploads/:file', requireAuth, (req, res) => {
   const file = path.basename(req.params.file);
   const filePath = path.join(UPLOAD_DIR, file);
@@ -194,16 +215,9 @@ app.post('/login', (req, res) => {
   const { username, password } = req.body;
   const stored = users[username];
   if (stored) {
-    const isHash = typeof stored === 'string' && stored.startsWith('$2');
-    const ok = isHash
-      ? bcrypt.compareSync(password, stored)
-      : stored === password;
-    if (ok) {
-      if (!isHash) {
-        users[username] = bcrypt.hashSync(password, 10);
-        fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
-      }
-      req.session.user = username;
+    const hash = stored.password;
+    if (hash && bcrypt.compareSync(password, hash)) {
+      req.session.user = { username, role: stored.role };
       logAction(`login ${username}`);
       return res.json({ ok: true });
     }
@@ -241,7 +255,11 @@ app.get('/auth/google/callback', async (req, res) => {
     const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
     const info = await oauth2.userinfo.get();
     const email = info.data.email || info.data.id;
-    req.session.user = email;
+    if (!users[email]) {
+      users[email] = { role: 'paciente' };
+      fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+    }
+    req.session.user = { username: email, role: users[email].role };
     logAction(`login ${email} google`);
     res.redirect('/index.html');
   } catch (err) {
@@ -251,42 +269,46 @@ app.get('/auth/google/callback', async (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  logAction(`logout ${req.session.user}`);
+  logAction(`logout ${req.session.user.username}`);
   req.session.destroy(() => {
     res.json({ ok: true });
   });
 });
 
-app.get('/api/users', requireAuth, (req, res) => {
+app.get('/api/me', requireAuth, (req, res) => {
+  res.json(req.session.user);
+});
+
+app.get('/api/users', requireRole('admin'), (req, res) => {
   res.json(Object.keys(users));
 });
 
-app.post('/api/users', requireAuth, (req, res) => {
-  const { username, password } = req.body;
+app.post('/api/users', requireRole('admin'), (req, res) => {
+  const { username, password, role = 'medico' } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'dados inválidos' });
   }
   if (users[username]) {
     return res.status(400).json({ error: 'usuário existente' });
   }
-  users[username] = bcrypt.hashSync(password, 10);
+  users[username] = { password: bcrypt.hashSync(password, 10), role };
   fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
-  logAction(`create-user ${req.session.user} ${username}`);
+  logAction(`create-user ${req.session.user.username} ${username}`);
   res.json({ ok: true });
 });
 
-app.delete('/api/users/:username', requireAuth, (req, res) => {
+app.delete('/api/users/:username', requireRole('admin'), (req, res) => {
   const { username } = req.params;
   if (!users[username]) {
     return res.status(404).json({ error: 'não encontrado' });
   }
   delete users[username];
   fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
-  logAction(`delete-user ${req.session.user} ${username}`);
+  logAction(`delete-user ${req.session.user.username} ${username}`);
   res.json({ ok: true });
 });
 
-app.post('/api/users/:username/password', requireAuth, (req, res) => {
+app.post('/api/users/:username/password', requireRole('admin'), (req, res) => {
   const { username } = req.params;
   const { password } = req.body;
   if (!users[username]) {
@@ -295,17 +317,32 @@ app.post('/api/users/:username/password', requireAuth, (req, res) => {
   if (typeof password !== 'string' || !password.trim()) {
     return res.status(400).json({ error: 'senha inválida' });
   }
-  users[username] = bcrypt.hashSync(password, 10);
+  users[username].password = bcrypt.hashSync(password, 10);
   fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
-  logAction(`update-pass ${req.session.user} ${username}`);
+  logAction(`update-pass ${req.session.user.username} ${username}`);
   res.json({ ok: true });
 });
 
-app.get('/api/logs', requireAuth, (req, res) => {
+app.post('/api/users/:username/role', requireRole('admin'), (req, res) => {
+  const { username } = req.params;
+  const { role } = req.body;
+  if (!users[username]) {
+    return res.status(404).json({ error: 'não encontrado' });
+  }
+  if (!['admin', 'medico', 'paciente'].includes(role)) {
+    return res.status(400).json({ error: 'papel inválido' });
+  }
+  users[username].role = role;
+  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+  logAction(`update-role ${req.session.user.username} ${username} ${role}`);
+  res.json({ ok: true });
+});
+
+app.get('/api/logs', requireRole('admin'), (req, res) => {
   res.download(LOG_PATH, 'actions.log');
 });
 
-app.get('/api/backup', requireAuth, (req, res) => {
+app.get('/api/backup', requireRole('admin'), (req, res) => {
   res.attachment('backup.zip');
   const archive = archiver('zip');
   archive.pipe(res);
@@ -314,7 +351,7 @@ app.get('/api/backup', requireAuth, (req, res) => {
   archive.finalize();
 });
 
-app.get('/api/message', requireAuth, (req, res) => {
+app.get('/api/message', requireRole('admin'), (req, res) => {
   let template = '';
   try {
     template = fs.readFileSync(MESSAGE_PATH, 'utf8');
@@ -324,17 +361,17 @@ app.get('/api/message', requireAuth, (req, res) => {
   res.json({ message: template });
 });
 
-app.post('/api/message', requireAuth, (req, res) => {
+app.post('/api/message', requireRole('admin'), (req, res) => {
   const { message } = req.body;
   if (typeof message !== 'string' || !message.trim()) {
     return res.status(400).json({ error: 'mensagem inválida' });
   }
   fs.writeFileSync(MESSAGE_PATH, message);
-  logAction(`update-message ${req.session.user}`);
+  logAction(`update-message ${req.session.user.username}`);
   res.json({ ok: true });
 });
 
-app.get('/api/downloads', requireAuth, (req, res) => {
+app.get('/api/downloads', requireRole('admin'), (req, res) => {
   const { id } = req.query;
   let list = downloads;
   if (id) {
@@ -344,28 +381,28 @@ app.get('/api/downloads', requireAuth, (req, res) => {
   res.json(list);
 });
 
-app.get('/api/stats', requireAuth, (req, res) => {
+app.get('/api/stats', requireRole('admin'), (req, res) => {
   res.json({
     totalEcografias: ecografias.length,
     totalDownloads: downloads.length,
   });
 });
 
-app.get('/api/whatsapp/status', requireAuth, (req, res) => {
+app.get('/api/whatsapp/status', requireRole('admin'), (req, res) => {
   res.json({ ready: waReady });
 });
 
-app.post('/api/whatsapp/reset', requireAuth, (req, res) => {
+app.post('/api/whatsapp/reset', requireRole('admin'), (req, res) => {
   if (waClient) {
     waClient.destroy();
     waReady = false;
     waClient.initialize();
   }
-  logAction(`wa-reset ${req.session.user}`);
+  logAction(`wa-reset ${req.session.user.username}`);
   res.json({ ok: true });
 });
 
-app.get('/api/ecografias.csv', requireAuth, (req, res) => {
+app.get('/api/ecografias.csv', requireRole('admin'), (req, res) => {
   const header = [
     'id',
     'patientName',
@@ -391,6 +428,9 @@ app.get('/api/ecografias.csv', requireAuth, (req, res) => {
 app.get('/api/ecografias', requireAuth, (req, res) => {
   let { q, start, end, shared } = req.query;
   let results = ecografias;
+  if (req.session.user.role === 'paciente') {
+    results = results.filter((e) => e.patientName === req.session.user.username);
+  }
   if (q) {
     q = q.toLowerCase();
     results = results.filter(
@@ -414,7 +454,11 @@ app.get('/api/ecografias', requireAuth, (req, res) => {
   res.json(results);
 });
 
-app.post('/api/ecografias', requireAuth, upload.single('file'), async (req, res) => {
+app.post(
+  '/api/ecografias',
+  requireRole(['admin', 'medico']),
+  upload.single('file'),
+  async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Arquivo não enviado' });
   const {
     patientName = '',
@@ -459,7 +503,7 @@ app.post('/api/ecografias', requireAuth, upload.single('file'), async (req, res)
   };
   ecografias.push(item);
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`upload ${req.session.user} ${filename}`);
+  logAction(`upload ${req.session.user.username} ${filename}`);
 
   // gerar link de compartilhamento e enviar via WhatsApp
   const token = Math.random().toString(36).substring(2, 10);
@@ -474,6 +518,12 @@ app.get('/api/ecografias/:id', requireAuth, (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
+  if (
+    req.session.user.role === 'paciente' &&
+    item.patientName !== req.session.user.username
+  ) {
+    return res.status(403).json({ error: 'forbidden' });
+  }
   res.json(item);
 });
 
@@ -481,12 +531,18 @@ app.get('/api/ecografias/:id/pdf', requireAuth, (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
+  if (
+    req.session.user.role === 'paciente' &&
+    item.patientName !== req.session.user.username
+  ) {
+    return res.status(403).json({ error: 'forbidden' });
+  }
   const filePath = path.join(UPLOAD_DIR, item.filename);
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'não encontrado' });
   res.sendFile(filePath);
 });
 
-app.delete('/api/ecografias/:id', requireAuth, (req, res) => {
+app.delete('/api/ecografias/:id', requireRole(['admin', 'medico']), (req, res) => {
   const id = Number(req.params.id);
   const idx = ecografias.findIndex((e) => e.id === id);
   if (idx === -1) return res.status(404).json({ error: 'não encontrado' });
@@ -496,11 +552,11 @@ app.delete('/api/ecografias/:id', requireAuth, (req, res) => {
     fs.unlinkSync(path.join(THUMB_DIR, item.thumbFilename));
   }
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`delete ${req.session.user} ${item.filename}`);
+  logAction(`delete ${req.session.user.username} ${item.filename}`);
   res.json({ ok: true });
 });
 
-app.put('/api/ecografias/:id', requireAuth, (req, res) => {
+app.put('/api/ecografias/:id', requireRole(['admin', 'medico']), (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
@@ -511,11 +567,11 @@ app.put('/api/ecografias/:id', requireAuth, (req, res) => {
   if (cpf !== undefined) item.cpf = cpf;
   if (whatsapp !== undefined) item.whatsapp = whatsapp;
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`update ${req.session.user} ${item.filename}`);
+  logAction(`update ${req.session.user.username} ${item.filename}`);
   res.json(item);
 });
 
-app.post('/api/ecografias/:id/share', requireAuth, (req, res) => {
+app.post('/api/ecografias/:id/share', requireRole(['admin', 'medico']), (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
@@ -524,11 +580,11 @@ app.post('/api/ecografias/:id/share', requireAuth, (req, res) => {
   shares[token] = { id, expire: Date.now() + expiresIn };
   item.shared = true;
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`share ${req.session.user} ${token} for ${item.filename}`);
+  logAction(`share ${req.session.user.username} ${token} for ${item.filename}`);
   res.json({ url: `/share/${token}` });
 });
 
-app.post('/api/ecografias/:id/resend', requireAuth, async (req, res) => {
+app.post('/api/ecografias/:id/resend', requireRole(['admin', 'medico']), async (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
@@ -539,17 +595,17 @@ app.post('/api/ecografias/:id/resend', requireAuth, async (req, res) => {
   await sendExamLink(item, shareUrl);
   item.shared = true;
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`resend ${req.session.user} ${token} for ${item.filename}`);
+  logAction(`resend ${req.session.user.username} ${token} for ${item.filename}`);
   res.json({ url: `/share/${token}` });
 });
 
-app.post('/api/ecografias/:id/unshare', requireAuth, (req, res) => {
+app.post('/api/ecografias/:id/unshare', requireRole(['admin', 'medico']), (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
   item.shared = false;
   fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`unshare ${req.session.user} ${item.filename}`);
+  logAction(`unshare ${req.session.user.username} ${item.filename}`);
   res.json({ ok: true });
 });
 
