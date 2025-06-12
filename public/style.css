@@ -1,8 +1,6 @@
 :root {
   --bg-light: linear-gradient(135deg, #c0d4ff, #f5e7ff);
-  --bg-dark: linear-gradient(135deg, #2d2d2d, #000);
   --text-light: #333;
-  --text-dark: #eee;
   --primary: #0066cc;
   --primary-dark: #004999;
 }
@@ -15,10 +13,6 @@ body {
   padding: 0;
 }
 
-body.dark {
-  background: var(--bg-dark);
-  color: var(--text-dark);
-}
 
 .glass {
   background: rgba(255, 255, 255, 0.25);
@@ -29,10 +23,6 @@ body.dark {
   border-radius: 8px;
 }
 
-body.dark .glass {
-  background: rgba(0, 0, 0, 0.35);
-  border-color: rgba(255, 255, 255, 0.1);
-}
 
 header {
   color: var(--text-light);
@@ -41,9 +31,6 @@ header {
   position: relative;
 }
 
-body.dark header {
-  color: var(--text-dark);
-}
 
 .header-buttons {
   position: absolute;
@@ -112,9 +99,7 @@ body.dark header {
   cursor: pointer;
 }
 
-body.dark .tab {
   background: #555;
-  color: var(--text-dark);
 }
 
 .tab.active {
@@ -122,7 +107,6 @@ body.dark .tab {
   color: #fff;
 }
 
-body.dark .tab.active {
   color: #fff;
 }
 
@@ -159,7 +143,6 @@ button {
   cursor: pointer;
 }
 
-body.dark button {
   background: var(--primary);
 }
 
@@ -328,12 +311,28 @@ footer.footer {
   z-index: 1000;
 }
 
-body.dark .profile-dropdown {
-  background: #333;
-  color: var(--text-dark);
-  border-color: #444;
-}
 
 .profile-dropdown.show {
   display: block;
+}
+.scroll-fade {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-fade.show {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  header {
+    padding: 10px;
+  }
+  .header-buttons {
+    position: static;
+    margin-top: 10px;
+    justify-content: center;
+  }
 }

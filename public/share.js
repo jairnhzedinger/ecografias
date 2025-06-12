@@ -1,16 +1,16 @@
-function initTheme() {
-  const btn = document.getElementById('themeToggle');
-  if (!btn) return;
-  if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark');
-  }
-  btn.addEventListener('click', () => {
-    document.body.classList.toggle('dark');
-    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-  });
+function initScrollEffects() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('show');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.scroll-fade').forEach((el) => obs.observe(el));
 }
 
-initTheme();
+initScrollEffects();
 
 async function initProfileMenu() {
   const pic = document.getElementById('profilePic');
