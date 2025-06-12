@@ -104,11 +104,11 @@ if (uploadForm) {
 
     if (userRole !== 'admin') {
       document.querySelector('[data-tab="usuarios"]').style.display = 'none';
+      document.querySelector('[data-tab="stats"]').style.display = 'none';
     }
     if (userRole === 'paciente') {
       document.querySelector('[data-tab="upload"]').style.display = 'none';
       document.querySelector('[data-tab="mensagem"]').style.display = 'none';
-      document.querySelector('[data-tab="stats"]').style.display = 'none';
     }
 
   const lista = document.getElementById('lista');
