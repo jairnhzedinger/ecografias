@@ -150,7 +150,16 @@ const upload = multer({
 const SESSION_SECRET =
   process.env.SESSION_SECRET || require('crypto').randomBytes(16).toString('hex');
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        'img-src': ["'self'", 'data:', 'https:'],
+      },
+    },
+  })
+);
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 app.use('/thumbs', express.static(THUMB_DIR));
 app.use(express.json());
