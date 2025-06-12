@@ -52,6 +52,15 @@ if (uploadForm) {
   const qrCanvas = document.getElementById('qrCanvas');
   const tabs = document.querySelectorAll('.tab');
   const contents = document.querySelectorAll('.tab-content');
+  const userForm = document.getElementById('userForm');
+  const userList = document.querySelector('#userList tbody');
+  const messageTemplate = document.getElementById('messageTemplate');
+  const saveMessage = document.getElementById('saveMessage');
+  const statsInfo = document.getElementById('statsInfo');
+  const refreshStats = document.getElementById('refreshStats');
+  const downloadsBody = document.querySelector('#downloadsTable tbody');
+  const waStatus = document.getElementById('waStatus');
+  const waReset = document.getElementById('waReset');
 
   tabs.forEach((tab) => {
     tab.addEventListener('click', () => {
@@ -114,15 +123,129 @@ if (uploadForm) {
         await api(`/api/ecografias/${item.id}`, { method: 'DELETE' });
         carregar(searchInput.value);
       };
+      const unshareBtn = document.createElement('button');
+      unshareBtn.textContent = 'Desativar';
+      unshareBtn.onclick = async () => {
+        await api(`/api/ecografias/${item.id}/unshare`, { method: 'POST' });
+        carregar(searchInput.value);
+      };
+      const pdfLink = document.createElement('a');
+      pdfLink.textContent = 'PDF';
+      pdfLink.href = `/api/ecografias/${item.id}/pdf`;
+      pdfLink.target = '_blank';
       actionsTd.appendChild(shareBtn);
       actionsTd.appendChild(resendBtn);
       actionsTd.appendChild(delBtn);
+      actionsTd.appendChild(unshareBtn);
+      actionsTd.appendChild(pdfLink);
       tr.appendChild(previewTd);
       tr.appendChild(patientTd);
       tr.appendChild(dateTd);
       tr.appendChild(actionsTd);
       tbody.appendChild(tr);
     });
+  }
+
+  async function loadUsers() {
+    const res = await api('/api/users');
+    const list = await res.json();
+    userList.innerHTML = '';
+    list.forEach((u) => {
+      const tr = document.createElement('tr');
+      const nameTd = document.createElement('td');
+      nameTd.textContent = u;
+      const actTd = document.createElement('td');
+      const passBtn = document.createElement('button');
+      passBtn.textContent = 'Senha';
+      passBtn.onclick = async () => {
+        const pw = prompt('Nova senha:');
+        if (pw) {
+          await api(`/api/users/${u}/password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pw }),
+          });
+        }
+      };
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Excluir';
+      delBtn.onclick = async () => {
+        await api(`/api/users/${u}`, { method: 'DELETE' });
+        loadUsers();
+      };
+      actTd.appendChild(passBtn);
+      actTd.appendChild(delBtn);
+      tr.appendChild(nameTd);
+      tr.appendChild(actTd);
+      userList.appendChild(tr);
+    });
+  }
+
+  if (userForm) {
+    userForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(userForm).entries());
+      await api('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      userForm.reset();
+      loadUsers();
+    });
+    loadUsers();
+  }
+
+  async function loadMessage() {
+    const res = await api('/api/message');
+    const data = await res.json();
+    messageTemplate.value = data.message;
+  }
+  if (saveMessage) {
+    saveMessage.addEventListener('click', async () => {
+      await api('/api/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: messageTemplate.value }),
+      });
+    });
+    loadMessage();
+  }
+
+  async function loadStats() {
+    const res = await api('/api/stats');
+    const data = await res.json();
+    statsInfo.textContent = `Exames: ${data.totalEcografias}, Downloads: ${data.totalDownloads}`;
+    const dres = await api('/api/downloads');
+    const list = await dres.json();
+    downloadsBody.innerHTML = '';
+    list.forEach((d) => {
+      const tr = document.createElement('tr');
+      const idTd = document.createElement('td');
+      idTd.textContent = d.id;
+      const dateTd = document.createElement('td');
+      dateTd.textContent = new Date(d.timestamp).toLocaleString();
+      tr.appendChild(idTd);
+      tr.appendChild(dateTd);
+      downloadsBody.appendChild(tr);
+    });
+  }
+  if (refreshStats) {
+    refreshStats.addEventListener('click', loadStats);
+    loadStats();
+  }
+
+  async function checkWa() {
+    const res = await api('/api/whatsapp/status');
+    const data = await res.json();
+    waStatus.textContent = data.ready ? 'WhatsApp conectado' : 'WhatsApp desconectado';
+  }
+  if (waReset) {
+    waReset.addEventListener('click', async () => {
+      await api('/api/whatsapp/reset', { method: 'POST' });
+      checkWa();
+    });
+    checkWa();
   }
 
   uploadForm.addEventListener('submit', async (e) => {

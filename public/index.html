@@ -21,6 +21,9 @@
     <div class="tabs">
       <div class="tab active" data-tab="upload">Enviar</div>
       <div class="tab" data-tab="lista">Lista</div>
+      <div class="tab" data-tab="usuarios">Usuarios</div>
+      <div class="tab" data-tab="mensagem">Mensagem</div>
+      <div class="tab" data-tab="stats">Estatisticas</div>
     </div>
     <div id="uploadTab" class="tab-content active">
       <h2>Enviar nova ecografia</h2>
@@ -77,6 +80,44 @@
       </div>
     </div>
     </div>
+    <div id="usuariosTab" class="tab-content">
+      <h2>Usuarios</h2>
+      <form id="userForm">
+        <input type="text" name="username" placeholder="Usuario" required />
+        <input type="password" name="password" placeholder="Senha" required />
+        <button type="submit">Adicionar</button>
+      </form>
+      <div class="table-wrapper">
+        <table id="userList" class="table">
+          <thead><tr><th>Usuario</th><th>Acoes</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="mensagemTab" class="tab-content">
+      <h2>Mensagem do WhatsApp</h2>
+      <textarea id="messageTemplate" rows="4"></textarea>
+      <button id="saveMessage">Salvar</button>
+    </div>
+    <div id="statsTab" class="tab-content">
+      <h2>Estatisticas</h2>
+      <div id="statsInfo"></div>
+      <button id="refreshStats">Atualizar</button>
+      <div class="table-wrapper">
+        <table id="downloadsTable" class="table">
+          <thead><tr><th>ID</th><th>Data</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="links">
+        <a href="/api/logs" id="logLink">Logs</a>
+        <a href="/api/ecografias.csv" id="csvLink">CSV</a>
+        <a href="/api/backup" id="backupLink">Backup</a>
+      </div>
+      <div id="waStatus"></div>
+      <button id="waReset">Reiniciar WhatsApp</button>
+    </div>
+  </div>
   </div>
   <script src="qrcode.min.js"></script>
   <script src="app.js"></script>
