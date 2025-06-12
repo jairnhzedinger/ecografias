@@ -83,3 +83,8 @@ npm start
 ```
 
 Essas chaves não devem ser versionadas.
+
+Ao realizar o primeiro login via Google um novo usuário é criado automaticamente
+com papel **paciente**. São armazenados nome, e-mail e foto do perfil fornecido
+pelo Google. O serviço não informa CPF, portanto esse dado continua sendo
+solicitado separadamente ao registrar os exames.
