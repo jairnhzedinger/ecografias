@@ -40,6 +40,12 @@ describe('Compartilhamento', () => {
     token = shareRes.body.url.split('/').pop();
   });
 
+  test('pagina de compartilhamento deve conter botao de download', async () => {
+    const res = await agent.get(`/share/${token}`);
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('id="downloadLink"');
+  });
+
   test('deve aceitar CPF correto e retornar PDF', async () => {
     const res = await agent
       .post(`/share/${token}`)
