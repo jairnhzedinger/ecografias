@@ -27,6 +27,9 @@ if (form) {
       const url = URL.createObjectURL(blob);
       document.getElementById('pdfEmbed').src = url;
       document.getElementById('pdfContainer').style.display = 'block';
+      const link = document.getElementById('downloadLink');
+      link.href = url;
+      link.style.display = 'inline-block';
       form.style.display = 'none';
     } else {
       document.getElementById('error').textContent = 'CPF incorreto ou link expirado';

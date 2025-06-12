@@ -167,6 +167,20 @@ button:hover {
   background: var(--primary-dark);
 }
 
+.download-link {
+  display: inline-block;
+  margin-top: 10px;
+  text-decoration: none;
+  background: var(--primary);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+
+.download-link:hover {
+  background: var(--primary-dark);
+}
+
 .pdf-container {
   margin-top: 20px;
 }
