@@ -1,3 +1,15 @@
+function initTheme() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark');
+  }
+  btn.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+  });
+}
+
 async function api(url, options) {
   const res = await fetch(url, options);
   if (res.status === 401) {
@@ -6,6 +18,8 @@ async function api(url, options) {
   }
   return res;
 }
+
+initTheme();
 
 // Login page
 const loginForm = document.getElementById('loginForm');
@@ -36,6 +50,17 @@ if (uploadForm) {
   const shareLinkEl = document.getElementById('shareLink');
   const shareClose = document.getElementById('shareClose');
   const qrCanvas = document.getElementById('qrCanvas');
+  const tabs = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => t.classList.remove('active'));
+      contents.forEach((c) => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+    });
+  });
 
   if (shareClose) {
     shareClose.addEventListener('click', () => {
