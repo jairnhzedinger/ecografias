@@ -1,8 +1,8 @@
 :root {
-  --bg-light: linear-gradient(135deg, #c0d4ff, #f5e7ff);
-  --text-light: #333;
-  --primary: #0066cc;
-  --primary-dark: #004999;
+  --bg-light: linear-gradient(135deg, #168AAD, #76C893);
+  --text-light: #000;
+  --primary: #1A759F;
+  --primary-dark: #168AAD;
 }
 
 body {
@@ -232,6 +232,13 @@ button:hover {
   margin: 60px auto;
   padding: 30px;
   text-align: center;
+}
+
+.login-title {
+  color: var(--primary);
+  font-size: 40px;
+  font-weight: 800;
+  margin-bottom: 20px;
 }
 
 .login-buttons {
