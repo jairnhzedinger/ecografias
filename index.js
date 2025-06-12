@@ -7,6 +7,16 @@ const session = require('express-session');
 const helmet = require('helmet');
 const archiver = require('archiver');
 const gm = require('gm');
+const { spawnSync } = require('child_process');
+
+function hasConvert() {
+  const gmCheck = spawnSync('gm', ['-version'], { stdio: 'ignore' });
+  if (gmCheck.status === 0) return true;
+  const convCheck = spawnSync('convert', ['-version'], { stdio: 'ignore' });
+  return convCheck.status === 0;
+}
+
+const GM_AVAILABLE = hasConvert();
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const bcrypt = require('bcryptjs');
@@ -570,18 +580,25 @@ app.post(
     await sharp(req.file.path).resize(200).toFile(path.join(THUMB_DIR, thumbFilename));
   } else if (req.file.mimetype === 'application/pdf') {
     thumbFilename = 'thumb-' + filename.replace(path.extname(filename), '.png');
-    try {
-      await new Promise((resolve, reject) => {
-        gm(req.file.path + '[0]')
-          .setFormat('png')
-          .resize(200)
-          .write(path.join(THUMB_DIR, thumbFilename), (err) => {
-            if (err) reject(err);
-            else resolve();
-          });
-      });
-    } catch (err) {
-      console.error('Erro ao gerar miniatura do PDF:', err.message);
+    if (GM_AVAILABLE) {
+      try {
+        await new Promise((resolve, reject) => {
+          gm(req.file.path + '[0]')
+            .setFormat('png')
+            .resize(200)
+            .write(path.join(THUMB_DIR, thumbFilename), (err) => {
+              if (err) reject(err);
+              else resolve();
+            });
+        });
+      } catch (err) {
+        console.error('Erro ao gerar miniatura do PDF:', err.message);
+        thumbFilename = null;
+      }
+    } else {
+      console.warn(
+        'GraphicsMagick/ImageMagick não encontrado, miniatura não gerada'
+      );
       thumbFilename = null;
     }
   }

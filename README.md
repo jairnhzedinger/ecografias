@@ -30,6 +30,30 @@ Verifique a instalação com `node -v`.
 npm install
 ```
 
+Instale também o **GraphicsMagick** (ou o **ImageMagick**) para gerar
+miniaturas de PDFs. Caso esses binários não estejam disponíveis no `PATH`
+será exibida a mensagem `gm/convert binaries can't be found`.
+
+No Windows é possível usar o [chocolatey](https://chocolatey.org/) para
+instalar:
+
+```bash
+choco install graphicsmagick
+```
+
+Em distribuições Linux utilize o gerenciador de pacotes. No Ubuntu por
+exemplo:
+
+```bash
+sudo apt install graphicsmagick
+```
+
+No macOS instale via [Homebrew](https://brew.sh/):
+
+```bash
+brew install graphicsmagick
+```
+
 ### 4. Iniciar o servidor
 
 ```bash
