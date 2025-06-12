@@ -18,7 +18,7 @@ O servidor iniciará na porta `3000` por padrão e servirá arquivos estáticos 
 
 - `GET /api/ecografias` - lista todas as ecografias cadastradas.
 - `POST /api/ecografias` - envia um novo laudo em PDF (campo `file`). O corpo também deve conter `patientName`, `cpf`, `whatsapp`, `examDate` e `notes`. Após o envio, um link de compartilhamento é enviado automaticamente para o WhatsApp informado.
-- `GET /uploads/<arquivo>` - acessa o arquivo enviado.
+- `GET /uploads/<arquivo>` - acessa o arquivo enviado (requer autenticação).
 
 ## Interface Web
 
