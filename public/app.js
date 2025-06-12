@@ -40,6 +40,25 @@ if (loginForm) {
   });
 }
 
+// Página de CPF
+const cpfForm = document.getElementById('cpfForm');
+if (cpfForm) {
+  cpfForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const cpf = cpfForm.querySelector('input[name="cpf"]').value.trim();
+    const res = await api('/api/me/cpf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cpf }),
+    }).catch(() => {});
+    if (res && res.ok) {
+      location.href = '/index.html';
+    } else if (res) {
+      document.getElementById('cpfError').textContent = 'Falha ao salvar CPF';
+    }
+  });
+}
+
 // Index page
 const uploadForm = document.getElementById('uploadForm');
 if (uploadForm) {
