@@ -13,6 +13,8 @@ const { google } = require('googleapis');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Diretórios
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
@@ -204,25 +206,37 @@ app.get('/uploads/:file', requireAuth, (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  let page = 'login.html';
+  let view = 'login';
   if (req.session.user) {
     if (req.session.needCpf) {
-      page = 'cpf.html';
+      view = 'cpf';
     } else if (req.session.user.role === 'paciente') {
-      page = 'painel.html';
+      view = 'painel';
     } else {
-      page = 'index.html';
+      view = 'index';
     }
   }
-  res.sendFile(path.join(__dirname, 'public', page));
+  res.render(view);
+});
+
+app.get('/login.html', (req, res) => {
+  res.render('login');
+});
+
+app.get('/cpf.html', (req, res) => {
+  res.render('cpf');
+});
+
+app.get('/painel.html', (req, res) => {
+  res.render('painel');
 });
 
 app.get('/politica', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'politica.html'));
+  res.render('politica');
 });
 
 app.get('/termos', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'termos.html'));
+  res.render('termos');
 });
 
 app.post('/login', (req, res) => {
@@ -666,7 +680,7 @@ app.post('/api/ecografias/:id/unshare', requireRole(['admin', 'medico']), (req, 
 app.get('/share/:token', (req, res) => {
   const data = shares[req.params.token];
   if (!data || data.expire < Date.now()) return res.status(404).send('Link expirado');
-  res.sendFile(path.join(__dirname, 'public', 'share.html'));
+  res.render('share');
 });
 
 app.post('/share/:token', (req, res) => {

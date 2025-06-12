@@ -37,6 +37,7 @@ npm start
 ```
 
 O servidor iniciará na porta `3000` por padrão e servirá arquivos estáticos do diretório `public`.
+As páginas HTML foram convertidas para templates **EJS** localizados em `views`.
 
 Para executar a suíte de testes utilize `npm test`.
 
