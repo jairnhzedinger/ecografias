@@ -35,3 +35,22 @@ A interface web disponível em `/` permite enviar novas ecografias e visualizar 
 Para que um paciente visualize seu laudo, um link de compartilhamento é gerado pelo administrador. O paciente precisa acessar esse link e informar o CPF cadastrado para liberar o PDF.
 
 Ao iniciar o servidor é exibido um QR code no terminal para conectar o WhatsApp Web. A conta associada será utilizada para enviar automaticamente o link do laudo para o número informado no cadastro.
+
+## Login com Google
+
+Para habilitar o login via Google é necessário criar credenciais OAuth 2.0 no Google Cloud.
+
+1. Acesse [console.cloud.google.com](https://console.cloud.google.com/) e crie um projeto.
+2. Ative a API **Google Identity** e crie um ID do cliente OAuth do tipo **Aplicativo da Web**.
+3. Defina `http://localhost:3000/auth/google/callback` como URL de redirecionamento autorizada.
+4. Anote o **Client ID** e o **Client Secret** gerados.
+
+Antes de iniciar o servidor defina as variáveis de ambiente abaixo com os valores obtidos:
+
+```bash
+export GOOGLE_CLIENT_ID="seu_id"
+export GOOGLE_CLIENT_SECRET="sua_chave"
+npm start
+```
+
+Essas chaves não devem ser versionadas.
