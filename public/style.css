@@ -287,3 +287,20 @@ button:hover {
 .google-btn:hover {
   background: #f7f7f7;
 }
+
+footer.footer {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 10px;
+  text-align: center;
+}
+
+.footer a {
+  margin: 0 10px;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}

@@ -173,6 +173,14 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', page));
 });
 
+app.get('/politica', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'politica.html'));
+});
+
+app.get('/termos', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'termos.html'));
+});
+
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   const stored = users[username];
