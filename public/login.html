@@ -16,7 +16,7 @@
       <button id="themeToggle">Tema</button>
     </div>
   </header>
-  <div class="container glass">
+  <div class="container glass login-container">
     <form id="loginForm">
       <div>
         <label>Usuário</label>
@@ -26,7 +26,10 @@
         <label>Senha</label>
         <input type="password" name="password" required>
       </div>
-      <button type="submit">Entrar</button>
+      <div class="login-buttons">
+        <button type="submit">Entrar</button>
+        <a href="/auth/google" class="google-btn">Entrar com Google</a>
+      </div>
     </form>
     <div id="loginError" style="color:red;"></div>
   </div>
