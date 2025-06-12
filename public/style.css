@@ -247,3 +247,27 @@ button:hover {
     flex-direction: column;
   }
 }
+
+.login-container {
+  max-width: 400px;
+  margin: 60px auto;
+  padding: 30px;
+  text-align: center;
+}
+
+.login-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.google-btn {
+  background: #fff;
+  color: #444;
+  border: 1px solid #ccc;
+}
+
+.google-btn:hover {
+  background: #f2f2f2;
+}

@@ -9,6 +9,8 @@ const pdfThumb = require('pdf-thumbnail');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const bcrypt = require('bcryptjs');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -142,6 +144,24 @@ app.use(
     saveUninitialized: true,
   })
 );
+app.use(passport.initialize());
+app.use(passport.session());
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((obj, done) => done(null, obj));
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID || 'dummy',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'dummy',
+      callbackURL: '/auth/google/callback',
+    },
+    (accessToken, refreshToken, profile, done) => {
+      const email =
+        profile.emails && profile.emails[0] && profile.emails[0].value;
+      done(null, { username: email || profile.id });
+    }
+  )
+);
 
 function requireAuth(req, res, next) {
   if (req.session && req.session.user) {
@@ -184,6 +204,21 @@ app.post('/login', (req, res) => {
   }
   res.status(401).json({ error: 'credenciais inválidas' });
 });
+
+app.get(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+app.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login.html' }),
+  (req, res) => {
+    req.session.user = req.user.username;
+    logAction(`login ${req.user.username} google`);
+    res.redirect('/index.html');
+  }
+);
 
 app.post('/logout', (req, res) => {
   logAction(`logout ${req.session.user}`);
