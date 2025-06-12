@@ -5,6 +5,7 @@ const agent = request.agent(app);
 
 describe('Permissoes', () => {
   beforeAll(async () => {
+    await app.ready;
     await agent.post('/login').send({ username: 'admin', password: 'admin' });
   });
 

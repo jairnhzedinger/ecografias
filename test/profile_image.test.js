@@ -5,6 +5,7 @@ const agent = request.agent(app);
 
 describe('Imagem de perfil', () => {
   beforeAll(async () => {
+    await app.ready;
     await agent.post('/login').send({ username: 'admin', password: 'admin' });
   });
 

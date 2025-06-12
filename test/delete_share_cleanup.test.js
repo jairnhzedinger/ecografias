@@ -16,6 +16,7 @@ describe('Remocao de tokens ao deletar exame', () => {
   let token;
 
   beforeAll(async () => {
+    await app.ready;
     await agent.post('/login').send({ username: 'admin', password: 'admin' });
     const tmp = tempPdf();
     const upload = await agent

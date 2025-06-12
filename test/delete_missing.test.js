@@ -17,6 +17,7 @@ describe('Excluir ecografia sem arquivo', () => {
   let filename;
   let thumb;
   beforeAll(async () => {
+    await app.ready;
     await agent.post('/login').send({ username: 'admin', password: 'admin' });
     const tmpPdf = createTempPdf();
     const res = await agent

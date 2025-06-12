@@ -14,6 +14,7 @@ function createTempPdf() {
 
 describe('Novas funcionalidades', () => {
   beforeAll(async () => {
+    await app.ready;
     await agent.post('/login').send({ username: 'admin', password: 'admin' });
   });
 

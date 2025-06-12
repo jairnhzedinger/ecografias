@@ -23,6 +23,10 @@ jest.mock('googleapis', () => ({
 
 delete require.cache[require.resolve('../index')];
 const app = require('../index');
+
+beforeAll(async () => {
+  await app.ready;
+});
 const usersFile = path.join(__dirname, '../data/users.json');
 const agent = request.agent(app);
 

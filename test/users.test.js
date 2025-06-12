@@ -5,6 +5,7 @@ const agent = request.agent(app);
 
 describe('Gerenciamento de usuários', () => {
   beforeAll(async () => {
+    await app.ready;
     await agent.post('/login').send({ username: 'admin', password: 'admin' });
   });
 
