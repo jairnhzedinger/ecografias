@@ -7,27 +7,6 @@ async function api(url, options) {
   return res;
 }
 
-async function initProfileMenu() {
-  const pic = document.getElementById('profilePic');
-  const dropdown = document.getElementById('profileDropdown');
-  if (!pic) return;
-  try {
-    const res = await api('/api/me');
-    const me = await res.json();
-    if (me.picture) {
-      pic.src = me.picture;
-    }
-  } catch (_) {}
-  pic.addEventListener('click', () => {
-    dropdown.classList.toggle('show');
-  });
-  document.addEventListener('click', (e) => {
-    if (e.target !== pic && !dropdown.contains(e.target)) {
-      dropdown.classList.remove('show');
-    }
-  });
-}
-
 
 function initScrollEffects() {
   const obs = new IntersectionObserver((entries) => {
