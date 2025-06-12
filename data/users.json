@@ -1,9 +1,30 @@
 {
   "admin": {
     "password": "$2a$10$eTjSo6karv2GPs2kiT2/PenbTk/rOPXYYJie.efuwxI5xFD988Lqu",
-    "role": "admin"
+    "role": "admin",
+    "cpf": "49521489049"
   },
   "jair.edinger2@gmail.com": {
-    "role": "paciente"
+    "role": "admin",
+    "name": "Jair Junior da Silva Edinger",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocKlL5Q9d4O9-sVfBH3snDDzmZlrwKA_yAcVucAp8g6ZK-6edZ21yA=s96-c",
+    "cpf": "03432962096"
+  },
+  "chamados@novahartz.rs.gov.br": {
+    "role": "paciente",
+    "name": "JAIR EDINGER",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocLEQmEL9wJV3VIGdMO231t8fGWqM_LCULPXq2jjXRki_JECww=s96-c"
+  },
+  "caioarr12@gmail.com": {
+    "role": "paciente",
+    "name": "Caio Arruda",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocJE5j00X29VVTDTypWl67ZSjhM3chmAhVatzN1v0dhhv06QWxAn=s96-c",
+    "cpf": "03851075013"
+  },
+  "gabrielzwetsch27@gmail.com": {
+    "role": "paciente",
+    "name": "Gxbriiel",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocK92cfleyKhVgx-GS7WRqGhn2ABPG4EQKRL0_WxorhX0MRQTMwB=s96-c",
+    "cpf": "05648775067"
   }
 }
