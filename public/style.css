@@ -263,9 +263,22 @@ button:hover {
 }
 
 .google-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: #fff;
   color: #444;
   border: 1px solid #ccc;
+  padding: 0 12px;
+  height: 40px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.google-btn img {
+  width: 18px;
+  height: 18px;
 }
 
 .google-btn:hover {
