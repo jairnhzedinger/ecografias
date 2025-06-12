@@ -199,7 +199,10 @@ app.get('/uploads/:file', requireAuth, (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  const page = req.session.user ? 'index.html' : 'login.html';
+  let page = 'login.html';
+  if (req.session.user) {
+    page = req.session.needCpf ? 'cpf.html' : 'index.html';
+  }
   res.sendFile(path.join(__dirname, 'public', page));
 });
 
@@ -217,7 +220,14 @@ app.post('/login', (req, res) => {
   if (stored) {
     const hash = stored.password;
     if (hash && bcrypt.compareSync(password, hash)) {
-      req.session.user = { username, role: stored.role };
+      req.session.user = {
+        username,
+        role: stored.role,
+        cpf: stored.cpf,
+        name: stored.name,
+        picture: stored.picture,
+      };
+      req.session.needCpf = !stored.cpf;
       logAction(`login ${username}`);
       return res.json({ ok: true });
     }
@@ -271,9 +281,11 @@ app.get('/auth/google/callback', async (req, res) => {
       role: users[email].role,
       name: users[email].name,
       picture: users[email].picture,
+      cpf: users[email].cpf,
     };
+    req.session.needCpf = !users[email].cpf;
     logAction(`login ${email} google`);
-    res.redirect('/index.html');
+    res.redirect(req.session.needCpf ? '/cpf.html' : '/index.html');
   } catch (err) {
     console.error('Erro login google:', err.message);
     res.redirect('/login.html');
@@ -289,6 +301,20 @@ app.post('/logout', (req, res) => {
 
 app.get('/api/me', requireAuth, (req, res) => {
   res.json(req.session.user);
+});
+
+app.post('/api/me/cpf', requireAuth, (req, res) => {
+  const { cpf } = req.body;
+  if (typeof cpf !== 'string' || !cpf.trim()) {
+    return res.status(400).json({ error: 'cpf inválido' });
+  }
+  const user = users[req.session.user.username];
+  if (!user) return res.status(404).json({ error: 'não encontrado' });
+  user.cpf = cpf.trim();
+  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+  req.session.user.cpf = user.cpf;
+  req.session.needCpf = false;
+  res.json({ ok: true });
 });
 
 app.get('/api/users', requireRole('admin'), (req, res) => {
@@ -441,7 +467,9 @@ app.get('/api/ecografias', requireAuth, (req, res) => {
   let { q, start, end, shared } = req.query;
   let results = ecografias;
   if (req.session.user.role === 'paciente') {
-    results = results.filter((e) => e.patientName === req.session.user.username);
+    results = results.filter(
+      (e) => e.cpf && req.session.user.cpf && e.cpf === req.session.user.cpf
+    );
   }
   if (q) {
     q = q.toLowerCase();

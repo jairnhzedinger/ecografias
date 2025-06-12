@@ -87,4 +87,6 @@ Essas chaves não devem ser versionadas.
 Ao realizar o primeiro login via Google um novo usuário é criado automaticamente
 com papel **paciente**. São armazenados nome, e-mail e foto do perfil fornecido
 pelo Google. O serviço não informa CPF, portanto esse dado continua sendo
-solicitado separadamente ao registrar os exames.
+solicitado separadamente. Ao entrar com Google pela primeira vez uma página
+solicitará o CPF. Após informar o número ele é salvo no cadastro e usado para
+filtrar os exames exibidos ao paciente.
