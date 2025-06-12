@@ -227,6 +227,27 @@ button:hover {
   }
 }
 
+.login-container {
+  max-width: 400px;
+  margin: 60px auto;
+  padding: 30px;
+  text-align: center;
+}
+
+.login-title {
+  color: var(--primary);
+  font-size: 40px;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.login-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
 .gsi-material-button {
   background-color: white;
   background-image: none;
@@ -387,76 +408,5 @@ footer.footer {
     position: static;
     margin-top: 10px;
     justify-content: center;
-  }
-}
-
-/* Novo layout de login */
-.login-page {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-}
-
-.login-wrapper {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.login-card {
-  width: 100%;
-  max-width: 420px;
-  padding: 40px;
-  text-align: center;
-}
-
-.login-card label {
-  display: block;
-  margin: 10px 0 4px;
-}
-
-.login-card input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.login-submit {
-  width: 100%;
-}
-
-.login-sep {
-  margin: 15px 0;
-  color: #555;
-}
-
-/* Novo layout do painel */
-.dashboard-layout {
-  display: flex;
-  min-height: 100vh;
-}
-
-.sidebar {
-  width: 220px;
-  padding: 20px;
-}
-
-.dashboard-content {
-  flex: 1;
-  padding: 20px;
-}
-
-@media (max-width: 800px) {
-  .dashboard-layout {
-    flex-direction: column;
-  }
-  .sidebar {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
   }
 }

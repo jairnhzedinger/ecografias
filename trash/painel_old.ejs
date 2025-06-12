@@ -10,16 +10,12 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <div class="dashboard-layout">
-    <aside class="sidebar glass scroll-fade">
-      <h1>EcoShare</h1>
-      <button id="logoutBtn" class="logout-btn">Sair</button>
-    </aside>
-    <main class="dashboard-content">
-      <h2 class="dashboard-title">Meus Exames</h2>
-      <div id="examGrid" class="grid"></div>
-    </main>
+<%- include('partials/header_main', { title: 'EcoShare' }) %>
+  <div class='container glass scroll-fade' id="painel">
+    <h2>Meus Exames</h2>
+    <div id="examGrid" class="grid"></div>
   </div>
+<%- include('partials/footer') %>
   <script src="/common.js"></script>
   <script src="/app.js"></script>
 </body>
