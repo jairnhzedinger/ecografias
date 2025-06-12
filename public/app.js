@@ -54,7 +54,14 @@ if (loginForm) {
       body: JSON.stringify(data),
     }).catch(() => {});
     if (res && res.ok) {
-      location.href = "/index.html";
+      const data = await res.json();
+      if (data.needCpf) {
+        location.href = '/cpf.html';
+      } else if (data.role === 'paciente') {
+        location.href = '/painel.html';
+      } else {
+        location.href = '/index.html';
+      }
     } else if (res) {
       document.getElementById('loginError').textContent = 'Falha no login';
     }

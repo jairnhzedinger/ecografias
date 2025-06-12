@@ -139,7 +139,8 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 app.use('/thumbs', express.static(THUMB_DIR));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -201,7 +202,13 @@ app.get('/uploads/:file', requireAuth, (req, res) => {
 app.get('/', (req, res) => {
   let page = 'login.html';
   if (req.session.user) {
-    page = req.session.needCpf ? 'cpf.html' : 'index.html';
+    if (req.session.needCpf) {
+      page = 'cpf.html';
+    } else if (req.session.user.role === 'paciente') {
+      page = 'painel.html';
+    } else {
+      page = 'index.html';
+    }
   }
   res.sendFile(path.join(__dirname, 'public', page));
 });
@@ -229,7 +236,7 @@ app.post('/login', (req, res) => {
       };
       req.session.needCpf = !stored.cpf;
       logAction(`login ${username}`);
-      return res.json({ ok: true });
+      return res.json({ ok: true, role: stored.role, needCpf: req.session.needCpf });
     }
   }
   res.status(401).json({ error: 'credenciais inválidas' });
@@ -285,7 +292,7 @@ app.get('/auth/google/callback', async (req, res) => {
     };
     req.session.needCpf = !users[email].cpf;
     logAction(`login ${email} google`);
-    res.redirect(req.session.needCpf ? '/cpf.html' : '/index.html');
+    res.redirect('/');
   } catch (err) {
     console.error('Erro login google:', err.message);
     res.redirect('/login.html');
