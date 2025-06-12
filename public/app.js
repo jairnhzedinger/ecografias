@@ -62,7 +62,7 @@ if (loginForm) {
       } else if (data.role === 'paciente') {
         location.href = '/painel.html';
       } else {
-        location.href = '/index.html';
+        location.href = '/';
       }
     } else if (res) {
       document.getElementById('loginError').textContent = 'Falha no login';
