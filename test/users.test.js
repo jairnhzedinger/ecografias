@@ -9,6 +9,7 @@ describe('Gerenciamento de usuários', () => {
   });
 
   test('criar e remover usuário', async () => {
+    await agent.delete('/api/users/novo');
     await agent
       .post('/api/users')
       .send({ username: 'novo', password: '123' })
