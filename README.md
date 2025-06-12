@@ -42,7 +42,7 @@ Para habilitar o login via Google é necessário criar credenciais OAuth 2.0 no 
 
 1. Acesse [console.cloud.google.com](https://console.cloud.google.com/) e crie um projeto.
 2. Ative a API **Google Identity** e crie um ID do cliente OAuth do tipo **Aplicativo da Web**.
-3. Defina `http://localhost:3000/auth/google/callback` como URL de redirecionamento autorizada.
+3. Defina `http://localhost:3000/auth/google/callback` como URL de redirecionamento autorizada (para uso local).
 4. Anote o **Client ID** e o **Client Secret** gerados.
 
 Antes de iniciar o servidor defina as variáveis de ambiente abaixo com os valores obtidos:
@@ -50,6 +50,7 @@ Antes de iniciar o servidor defina as variáveis de ambiente abaixo com os valor
 ```bash
 export GOOGLE_CLIENT_ID="seu_id"
 export GOOGLE_CLIENT_SECRET="sua_chave"
+export GOOGLE_CALLBACK_URL="https://sua.url/auth/google/callback"
 npm start
 ```
 
