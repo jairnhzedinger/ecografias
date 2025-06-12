@@ -217,6 +217,12 @@ app.post('/login', (req, res) => {
   if (stored) {
     const hash = stored.password;
     if (hash && bcrypt.compareSync(password, hash)) {
+      req.session.user = {
+        username,
+        role: stored.role,
+        name: stored.name,
+        picture: stored.picture,
+      };
       req.session.user = { username, role: stored.role };
       logAction(`login ${username}`);
       return res.json({ ok: true });
@@ -257,6 +263,18 @@ app.get('/auth/google/callback', async (req, res) => {
     const email = info.data.email || info.data.id;
     if (!users[email]) {
       users[email] = { role: 'paciente' };
+    }
+    users[email].name = info.data.name;
+    users[email].picture = info.data.picture;
+    users[email].email = info.data.email;
+    users[email].googleId = info.data.id;
+    fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+    req.session.user = {
+      username: email,
+      role: users[email].role,
+      name: users[email].name,
+      picture: users[email].picture,
+    };
       fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
     }
     req.session.user = { username: email, role: users[email].role };
