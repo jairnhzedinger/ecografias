@@ -216,6 +216,15 @@ app.get('/uploads/:file', requireAuth, (req, res) => {
   if (!fs.existsSync(filePath)) {
     return res.status(404).send('não encontrado');
   }
+  const item = ecografias.find((e) => e.filename === file);
+  if (!item) return res.status(404).send('não encontrado');
+  if (req.session.user.role === 'paciente') {
+    if (normalizeCpf(item.cpf) !== normalizeCpf(req.session.user.cpf)) {
+      return res.status(403).send('forbidden');
+    }
+  } else if (!['admin', 'medico'].includes(req.session.user.role)) {
+    return res.status(403).send('forbidden');
+  }
   res.sendFile(filePath);
 });
 

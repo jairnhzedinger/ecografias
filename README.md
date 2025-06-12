@@ -45,7 +45,7 @@ Para executar a suíte de testes utilize `npm test`.
 
 - `GET /api/ecografias` - lista todas as ecografias cadastradas.
 - `POST /api/ecografias` - envia um novo laudo em PDF (campo `file`). O corpo também deve conter `patientName`, `cpf`, `whatsapp`, `examDate` e `notes`. Após o envio, um link de compartilhamento é enviado automaticamente para o WhatsApp informado.
-- `GET /uploads/<arquivo>` - acessa o arquivo enviado (requer autenticação).
+- `GET /uploads/<arquivo>` - acessa o arquivo enviado (requer autenticação e permissão do usuário).
 - `GET /api/message` - obtém o texto utilizado para envio via WhatsApp.
 - `POST /api/message` - atualiza o texto da mensagem enviada.
 - `GET /api/downloads` - lista registros de downloads.
