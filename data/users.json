@@ -1,1 +1,9 @@
-{"admin":"$2a$10$eTjSo6karv2GPs2kiT2/PenbTk/rOPXYYJie.efuwxI5xFD988Lqu"}
+{
+  "admin": {
+    "password": "$2a$10$eTjSo6karv2GPs2kiT2/PenbTk/rOPXYYJie.efuwxI5xFD988Lqu",
+    "role": "admin"
+  },
+  "jair.edinger2@gmail.com": {
+    "role": "paciente"
+  }
+}
