@@ -6,7 +6,7 @@ const sharp = require('sharp');
 const session = require('express-session');
 const helmet = require('helmet');
 const archiver = require('archiver');
-const pdfThumb = require('pdf-thumbnail');
+const gm = require('gm');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const bcrypt = require('bcryptjs');
@@ -571,12 +571,14 @@ app.post(
   } else if (req.file.mimetype === 'application/pdf') {
     thumbFilename = 'thumb-' + filename.replace(path.extname(filename), '.png');
     try {
-      const stream = await pdfThumb(fs.readFileSync(req.file.path), { resize: { width: 200 } });
       await new Promise((resolve, reject) => {
-        const out = fs.createWriteStream(path.join(THUMB_DIR, thumbFilename));
-        stream.pipe(out);
-        out.on('finish', resolve);
-        out.on('error', reject);
+        gm(req.file.path + '[0]')
+          .setFormat('png')
+          .resize(200)
+          .write(path.join(THUMB_DIR, thumbFilename), (err) => {
+            if (err) reject(err);
+            else resolve();
+          });
       });
     } catch (err) {
       console.error('Erro ao gerar miniatura do PDF:', err.message);
