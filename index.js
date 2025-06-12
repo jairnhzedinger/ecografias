@@ -223,6 +223,7 @@ app.post('/login', (req, res) => {
         name: stored.name,
         picture: stored.picture,
       };
+      req.session.user = { username, role: stored.role };
       logAction(`login ${username}`);
       return res.json({ ok: true });
     }
@@ -274,6 +275,9 @@ app.get('/auth/google/callback', async (req, res) => {
       name: users[email].name,
       picture: users[email].picture,
     };
+      fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+    }
+    req.session.user = { username: email, role: users[email].role };
     logAction(`login ${email} google`);
     res.redirect('/index.html');
   } catch (err) {
