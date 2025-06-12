@@ -7,21 +7,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header class="glass">
-    <h1>EcoShare</h1>
-    <div class="header-buttons">
-      <button id="themeToggle">Tema</button>
-      <div class="profile-menu">
-        <img id="profilePic" class="profile-pic" src="" alt="Perfil">
-        <div id="profileDropdown" class="profile-dropdown">
-          <button id="logoutBtn">Sair</button>
-        </div>
-      </div>
-    </div>
-  </header>
+<%- include('partials/header_main', { title: 'EcoShare' }) %>
   <div class="container glass login-container">
     <form id="cpfForm" method="post" action="/api/me/cpf">
       <div>
@@ -32,10 +21,7 @@
     </form>
     <div id="cpfError" style="color:red;"></div>
   </div>
-  <footer class="footer glass">
-    <a href="/politica">Política de Privacidade</a>
-    <a href="/termos">Termos de Serviço</a>
-  </footer>
-  <script src="app.js"></script>
+<%- include('partials/footer') %>
+  <script src="/app.js"></script>
 </body>
 </html>
