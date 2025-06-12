@@ -28,9 +28,9 @@ describe('Paginas publicas', () => {
     expect(res.text).toContain('action="/login"');
   });
 
-  test('login usa imagem de placeholder', async () => {
+  test('login usa bot\u00e3o oficial do Google', async () => {
     const res = await request(app).get('/login.html');
     expect(res.status).toBe(200);
-    expect(res.text).toContain('https://placehold.co/18x18');
+    expect(res.text).toContain('gsi-material-button');
   });
 });
