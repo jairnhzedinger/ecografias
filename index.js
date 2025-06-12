@@ -642,9 +642,15 @@ app.delete('/api/ecografias/:id', requireRole(['admin', 'medico']), (req, res) =
   const idx = ecografias.findIndex((e) => e.id === id);
   if (idx === -1) return res.status(404).json({ error: 'não encontrado' });
   const [item] = ecografias.splice(idx, 1);
-  fs.unlinkSync(path.join(UPLOAD_DIR, item.filename));
+  const mainFile = path.join(UPLOAD_DIR, item.filename);
+  if (fs.existsSync(mainFile)) {
+    fs.unlinkSync(mainFile);
+  }
   if (item.thumbFilename) {
-    fs.unlinkSync(path.join(THUMB_DIR, item.thumbFilename));
+    const thumbFile = path.join(THUMB_DIR, item.thumbFilename);
+    if (fs.existsSync(thumbFile)) {
+      fs.unlinkSync(thumbFile);
+    }
   }
   for (const [t, data] of Object.entries(shares)) {
     if (data.id === id) delete shares[t];
