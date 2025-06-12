@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const fsp = fs.promises;
 const sharp = require('sharp');
 const session = require('express-session');
 const helmet = require('helmet');
@@ -47,8 +48,8 @@ function normalizeCpf(cpf) {
   return typeof cpf === 'string' ? cpf.replace(/\D/g, '') : '';
 }
 
-function logAction(msg) {
-  fs.appendFileSync(LOG_PATH, `[${new Date().toISOString()}] ${msg}\n`);
+async function logAction(msg) {
+  await fsp.appendFile(LOG_PATH, `[${new Date().toISOString()}] ${msg}\n`);
 }
 
 let waClient = null;
@@ -81,34 +82,42 @@ async function ensureWaReady() {
 }
 
 let ecografias = [];
-try {
-  ecografias = JSON.parse(fs.readFileSync(DB_PATH));
-} catch (_) {
-  ecografias = [];
-}
-
 let downloads = [];
-try {
-  downloads = JSON.parse(fs.readFileSync(DOWNLOAD_LOG_PATH));
-} catch (_) {
-  downloads = [];
+let users = {};
+
+async function loadData() {
+  try {
+    const data = await fsp.readFile(DB_PATH, 'utf8');
+    ecografias = JSON.parse(data);
+  } catch (_) {
+    ecografias = [];
+  }
+
+  try {
+    const data = await fsp.readFile(DOWNLOAD_LOG_PATH, 'utf8');
+    downloads = JSON.parse(data);
+  } catch (_) {
+    downloads = [];
+  }
+
+  try {
+    const rawData = await fsp.readFile(USERS_PATH, 'utf8');
+    const raw = JSON.parse(rawData);
+    for (const [u, val] of Object.entries(raw)) {
+      if (typeof val === 'string') {
+        users[u] = { password: val, role: u === 'admin' ? 'admin' : 'medico' };
+      } else {
+        users[u] = val;
+      }
+    }
+  } catch (_) {
+    const hash = bcrypt.hashSync('admin', 10);
+    users = { admin: { password: hash, role: 'admin' } };
+    await fsp.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+  }
 }
 
-let users = {};
-try {
-  const raw = JSON.parse(fs.readFileSync(USERS_PATH));
-  for (const [u, val] of Object.entries(raw)) {
-    if (typeof val === 'string') {
-      users[u] = { password: val, role: u === 'admin' ? 'admin' : 'medico' };
-    } else {
-      users[u] = val;
-    }
-  }
-} catch (_) {
-  const hash = bcrypt.hashSync('admin', 10);
-  users = { admin: { password: hash, role: 'admin' } };
-  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
-}
+const ready = loadData();
 
 const shares = {};
 
@@ -121,7 +130,7 @@ async function sendExamLink(item, shareUrl) {
   }
   let template = 'Olá, seu exame de ecografia está disponível. Acesse: {link}';
   try {
-    template = fs.readFileSync(MESSAGE_PATH, 'utf8');
+    template = await fsp.readFile(MESSAGE_PATH, 'utf8');
   } catch (_) {
     /* ignore */
   }
@@ -272,7 +281,7 @@ app.get('/termos', (req, res) => {
   res.render('termos');
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const stored = users[username];
   if (stored) {
@@ -286,7 +295,7 @@ app.post('/login', (req, res) => {
         picture: stored.picture,
       };
       req.session.needCpf = !stored.cpf;
-      logAction(`login ${username}`);
+      await logAction(`login ${username}`);
       return res.json({ ok: true, role: stored.role, needCpf: req.session.needCpf });
     }
   }
@@ -333,7 +342,7 @@ app.get('/auth/google/callback', async (req, res) => {
       users[email].name = info.data.name;
       users[email].picture = info.data.picture;
     }
-    fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+    await fsp.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
     req.session.user = {
       username: email,
       role: users[email].role,
@@ -342,7 +351,7 @@ app.get('/auth/google/callback', async (req, res) => {
       cpf: users[email].cpf,
     };
     req.session.needCpf = !users[email].cpf;
-    logAction(`login ${email} google`);
+    await logAction(`login ${email} google`);
     res.redirect('/');
   } catch (err) {
     console.error('Erro login google:', err.message);
@@ -350,11 +359,11 @@ app.get('/auth/google/callback', async (req, res) => {
   }
 });
 
-app.post('/logout', (req, res) => {
+app.post('/logout', async (req, res) => {
   if (req.session.user && req.session.user.username) {
-    logAction(`logout ${req.session.user.username}`);
+    await logAction(`logout ${req.session.user.username}`);
   } else {
-    logAction('logout');
+    await logAction('logout');
   }
   req.session.destroy(() => {
     res.json({ ok: true });
@@ -365,7 +374,7 @@ app.get('/api/me', requireAuth, (req, res) => {
   res.json(req.session.user);
 });
 
-app.post('/api/me/cpf', requireAuth, (req, res) => {
+app.post('/api/me/cpf', requireAuth, async (req, res) => {
   const { cpf } = req.body;
   if (typeof cpf !== 'string' || !cpf.trim()) {
     return res.status(400).json({ error: 'cpf inválido' });
@@ -373,7 +382,7 @@ app.post('/api/me/cpf', requireAuth, (req, res) => {
   const user = users[req.session.user.username];
   if (!user) return res.status(404).json({ error: 'não encontrado' });
   user.cpf = normalizeCpf(cpf.trim());
-  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+  await fsp.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
   req.session.user.cpf = user.cpf;
   req.session.needCpf = false;
   res.json({ ok: true });
@@ -383,7 +392,7 @@ app.get('/api/users', requireRole('admin'), (req, res) => {
   res.json(Object.keys(users));
 });
 
-app.post('/api/users', requireRole('admin'), (req, res) => {
+app.post('/api/users', requireRole('admin'), async (req, res) => {
   const { username, password, role = 'medico' } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'dados inválidos' });
@@ -392,23 +401,23 @@ app.post('/api/users', requireRole('admin'), (req, res) => {
     return res.status(400).json({ error: 'usuário existente' });
   }
   users[username] = { password: bcrypt.hashSync(password, 10), role };
-  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
-  logAction(`create-user ${req.session.user.username} ${username}`);
+  await fsp.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+  await logAction(`create-user ${req.session.user.username} ${username}`);
   res.json({ ok: true });
 });
 
-app.delete('/api/users/:username', requireRole('admin'), (req, res) => {
+app.delete('/api/users/:username', requireRole('admin'), async (req, res) => {
   const { username } = req.params;
   if (!users[username]) {
     return res.status(404).json({ error: 'não encontrado' });
   }
   delete users[username];
-  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
-  logAction(`delete-user ${req.session.user.username} ${username}`);
+  await fsp.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+  await logAction(`delete-user ${req.session.user.username} ${username}`);
   res.json({ ok: true });
 });
 
-app.post('/api/users/:username/password', requireRole('admin'), (req, res) => {
+app.post('/api/users/:username/password', requireRole('admin'), async (req, res) => {
   const { username } = req.params;
   const { password } = req.body;
   if (!users[username]) {
@@ -418,12 +427,12 @@ app.post('/api/users/:username/password', requireRole('admin'), (req, res) => {
     return res.status(400).json({ error: 'senha inválida' });
   }
   users[username].password = bcrypt.hashSync(password, 10);
-  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
-  logAction(`update-pass ${req.session.user.username} ${username}`);
+  await fsp.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+  await logAction(`update-pass ${req.session.user.username} ${username}`);
   res.json({ ok: true });
 });
 
-app.post('/api/users/:username/role', requireRole('admin'), (req, res) => {
+app.post('/api/users/:username/role', requireRole('admin'), async (req, res) => {
   const { username } = req.params;
   const { role } = req.body;
   if (!users[username]) {
@@ -433,8 +442,8 @@ app.post('/api/users/:username/role', requireRole('admin'), (req, res) => {
     return res.status(400).json({ error: 'papel inválido' });
   }
   users[username].role = role;
-  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
-  logAction(`update-role ${req.session.user.username} ${username} ${role}`);
+  await fsp.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
+  await logAction(`update-role ${req.session.user.username} ${username} ${role}`);
   res.json({ ok: true });
 });
 
@@ -451,23 +460,23 @@ app.get('/api/backup', requireRole('admin'), (req, res) => {
   archive.finalize();
 });
 
-app.get('/api/message', requireRole('admin'), (req, res) => {
+app.get('/api/message', requireRole('admin'), async (req, res) => {
   let template = '';
   try {
-    template = fs.readFileSync(MESSAGE_PATH, 'utf8');
+    template = await fsp.readFile(MESSAGE_PATH, 'utf8');
   } catch (_) {
     template = 'Olá, seu exame de ecografia está disponível. Acesse: {link}';
   }
   res.json({ message: template });
 });
 
-app.post('/api/message', requireRole('admin'), (req, res) => {
+app.post('/api/message', requireRole('admin'), async (req, res) => {
   const { message } = req.body;
   if (typeof message !== 'string' || !message.trim()) {
     return res.status(400).json({ error: 'mensagem inválida' });
   }
-  fs.writeFileSync(MESSAGE_PATH, message);
-  logAction(`update-message ${req.session.user.username}`);
+  await fsp.writeFile(MESSAGE_PATH, message);
+  await logAction(`update-message ${req.session.user.username}`);
   res.json({ ok: true });
 });
 
@@ -492,13 +501,13 @@ app.get('/api/whatsapp/status', requireRole('admin'), (req, res) => {
   res.json({ ready: waReady });
 });
 
-app.post('/api/whatsapp/reset', requireRole('admin'), (req, res) => {
+app.post('/api/whatsapp/reset', requireRole('admin'), async (req, res) => {
   if (waClient) {
     waClient.destroy();
     waReady = false;
     waClient.initialize();
   }
-  logAction(`wa-reset ${req.session.user.username}`);
+  await logAction(`wa-reset ${req.session.user.username}`);
   res.json({ ok: true });
 });
 
@@ -616,8 +625,8 @@ app.post(
     shared: true,
   };
   ecografias.push(item);
-  fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`upload ${req.session.user.username} ${filename}`);
+  await fsp.writeFile(DB_PATH, JSON.stringify(ecografias, null, 2));
+  await logAction(`upload ${req.session.user.username} ${filename}`);
 
   // gerar link de compartilhamento e enviar via WhatsApp
   const token = Math.random().toString(36).substring(2, 10);
@@ -656,7 +665,7 @@ app.get('/api/ecografias/:id/pdf', requireAuth, (req, res) => {
   res.sendFile(filePath);
 });
 
-app.delete('/api/ecografias/:id', requireRole(['admin', 'medico']), (req, res) => {
+app.delete('/api/ecografias/:id', requireRole(['admin', 'medico']), async (req, res) => {
   const id = Number(req.params.id);
   const idx = ecografias.findIndex((e) => e.id === id);
   if (idx === -1) return res.status(404).json({ error: 'não encontrado' });
@@ -674,12 +683,12 @@ app.delete('/api/ecografias/:id', requireRole(['admin', 'medico']), (req, res) =
   for (const [t, data] of Object.entries(shares)) {
     if (data.id === id) delete shares[t];
   }
-  fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`delete ${req.session.user.username} ${item.filename}`);
+  await fsp.writeFile(DB_PATH, JSON.stringify(ecografias, null, 2));
+  await logAction(`delete ${req.session.user.username} ${item.filename}`);
   res.json({ ok: true });
 });
 
-app.put('/api/ecografias/:id', requireRole(['admin', 'medico']), (req, res) => {
+app.put('/api/ecografias/:id', requireRole(['admin', 'medico']), async (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
@@ -689,12 +698,12 @@ app.put('/api/ecografias/:id', requireRole(['admin', 'medico']), (req, res) => {
   if (notes !== undefined) item.notes = notes;
   if (cpf !== undefined) item.cpf = normalizeCpf(cpf);
   if (whatsapp !== undefined) item.whatsapp = whatsapp;
-  fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`update ${req.session.user.username} ${item.filename}`);
+  await fsp.writeFile(DB_PATH, JSON.stringify(ecografias, null, 2));
+  await logAction(`update ${req.session.user.username} ${item.filename}`);
   res.json(item);
 });
 
-app.post('/api/ecografias/:id/share', requireRole(['admin', 'medico']), (req, res) => {
+app.post('/api/ecografias/:id/share', requireRole(['admin', 'medico']), async (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
@@ -702,8 +711,8 @@ app.post('/api/ecografias/:id/share', requireRole(['admin', 'medico']), (req, re
   const token = Math.random().toString(36).substring(2, 10);
   shares[token] = { id, expire: Date.now() + expiresIn };
   item.shared = true;
-  fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`share ${req.session.user.username} ${token} for ${item.filename}`);
+  await fsp.writeFile(DB_PATH, JSON.stringify(ecografias, null, 2));
+  await logAction(`share ${req.session.user.username} ${token} for ${item.filename}`);
   res.json({ url: `/share/${token}` });
 });
 
@@ -717,18 +726,18 @@ app.post('/api/ecografias/:id/resend', requireRole(['admin', 'medico']), async (
   const shareUrl = `${req.protocol}://${req.get('host')}/share/${token}`;
   await sendExamLink(item, shareUrl);
   item.shared = true;
-  fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`resend ${req.session.user.username} ${token} for ${item.filename}`);
+  await fsp.writeFile(DB_PATH, JSON.stringify(ecografias, null, 2));
+  await logAction(`resend ${req.session.user.username} ${token} for ${item.filename}`);
   res.json({ url: `/share/${token}` });
 });
 
-app.post('/api/ecografias/:id/unshare', requireRole(['admin', 'medico']), (req, res) => {
+app.post('/api/ecografias/:id/unshare', requireRole(['admin', 'medico']), async (req, res) => {
   const id = Number(req.params.id);
   const item = ecografias.find((e) => e.id === id);
   if (!item) return res.status(404).json({ error: 'não encontrado' });
   item.shared = false;
-  fs.writeFileSync(DB_PATH, JSON.stringify(ecografias, null, 2));
-  logAction(`unshare ${req.session.user.username} ${item.filename}`);
+  await fsp.writeFile(DB_PATH, JSON.stringify(ecografias, null, 2));
+  await logAction(`unshare ${req.session.user.username} ${item.filename}`);
   res.json({ ok: true });
 });
 
@@ -738,7 +747,7 @@ app.get('/share/:token', (req, res) => {
   res.render('share');
 });
 
-app.post('/share/:token', (req, res) => {
+app.post('/share/:token', async (req, res) => {
   const data = shares[req.params.token];
   if (!data || data.expire < Date.now()) return res.status(404).send('Link expirado');
   const item = ecografias.find((e) => e.id === data.id);
@@ -746,7 +755,7 @@ app.post('/share/:token', (req, res) => {
   const { cpf } = req.body;
   if (item.cpf && normalizeCpf(cpf) === normalizeCpf(item.cpf)) {
     downloads.push({ id: item.id, timestamp: Date.now() });
-    fs.writeFileSync(DOWNLOAD_LOG_PATH, JSON.stringify(downloads, null, 2));
+    await fsp.writeFile(DOWNLOAD_LOG_PATH, JSON.stringify(downloads, null, 2));
     return res.sendFile(path.join(UPLOAD_DIR, item.filename));
   }
   res.status(403).send('CPF incorreto');
@@ -761,3 +770,4 @@ if (require.main === module) {
 module.exports = app;
 module.exports.getGoogleCallbackURL = () => GOOGLE_CALLBACK_PATH;
 module.exports._getCallbackURL = getCallbackURL;
+module.exports.ready = ready;

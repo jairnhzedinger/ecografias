@@ -8,7 +8,8 @@ const agent = request.agent(app);
 
 let originalUsers;
 
-beforeAll(() => {
+beforeAll(async () => {
+  await app.ready;
   originalUsers = JSON.parse(fs.readFileSync(usersFile));
 });
 

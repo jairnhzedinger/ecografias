@@ -1,6 +1,10 @@
 const request = require('supertest');
 const app = require('../index');
 
+beforeAll(async () => {
+  await app.ready;
+});
+
 describe('Content Security Policy', () => {
   test('permite imagens externas', async () => {
     const res = await request(app).get('/login.html');

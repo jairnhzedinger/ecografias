@@ -1,6 +1,10 @@
 const request = require('supertest');
 const app = require('../index');
 
+beforeAll(async () => {
+  await app.ready;
+});
+
 describe('Logout', () => {
   test('responde sem sessao ativa', async () => {
     const res = await request(app).post('/logout');

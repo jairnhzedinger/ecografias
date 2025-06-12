@@ -22,6 +22,7 @@ function createPdf() {
 
 describe('Permissao de acesso a uploads', () => {
   beforeAll(async () => {
+    await app.ready;
     originalEco = JSON.parse(fs.readFileSync(ecoFile));
     originalUsers = JSON.parse(fs.readFileSync(usersFile));
     await admin.post('/login').send({ username: 'admin', password: 'admin' });

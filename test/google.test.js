@@ -1,6 +1,10 @@
 const request = require('supertest');
 let app = require('../index');
 
+beforeAll(async () => {
+  await app.ready;
+});
+
 describe('Login Google', () => {
   test('rota de auth redireciona para o Google', async () => {
     const res = await request(app).get('/auth/google');

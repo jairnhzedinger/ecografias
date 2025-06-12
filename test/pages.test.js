@@ -1,6 +1,10 @@
 const request = require('supertest');
 const app = require('../index');
 
+beforeAll(async () => {
+  await app.ready;
+});
+
 describe('Paginas publicas', () => {
   test('politica acessivel', async () => {
     const res = await request(app).get('/politica');

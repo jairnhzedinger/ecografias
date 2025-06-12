@@ -18,6 +18,7 @@ describe('Compartilhamento', () => {
   let token;
   const cpf = '12345678900';
   beforeAll(async () => {
+    await app.ready;
     await agent
       .post('/login')
       .send({ username: 'admin', password: 'admin' })
