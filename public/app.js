@@ -19,6 +19,27 @@ async function api(url, options) {
   return res;
 }
 
+async function initProfileMenu() {
+  const pic = document.getElementById('profilePic');
+  const dropdown = document.getElementById('profileDropdown');
+  if (!pic) return;
+  try {
+    const res = await api('/api/me');
+    const me = await res.json();
+    if (me.picture) {
+      pic.src = me.picture;
+    }
+  } catch (_) {}
+  pic.addEventListener('click', () => {
+    dropdown.classList.toggle('show');
+  });
+  document.addEventListener('click', (e) => {
+    if (e.target !== pic && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+}
+
 initTheme();
 
 // Login page
@@ -33,7 +54,7 @@ if (loginForm) {
       body: JSON.stringify(data),
     }).catch(() => {});
     if (res && res.ok) {
-      location.href = '/index.html';
+      location.href = "/index.html";
     } else if (res) {
       document.getElementById('loginError').textContent = 'Falha no login';
     }
@@ -43,6 +64,7 @@ if (loginForm) {
 // Página de CPF
 const cpfForm = document.getElementById('cpfForm');
 if (cpfForm) {
+  initProfileMenu();
   cpfForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const cpf = cpfForm.querySelector('input[name="cpf"]').value.trim();
@@ -52,7 +74,7 @@ if (cpfForm) {
       body: JSON.stringify({ cpf }),
     }).catch(() => {});
     if (res && res.ok) {
-      location.href = '/index.html';
+      location.href = "/painel.html";
     } else if (res) {
       document.getElementById('cpfError').textContent = 'Falha ao salvar CPF';
     }
@@ -63,6 +85,7 @@ if (cpfForm) {
 const uploadForm = document.getElementById('uploadForm');
 if (uploadForm) {
   (async function initIndex() {
+    initProfileMenu();
     let userRole = 'medico';
     try {
       const meRes = await api('/api/me');
@@ -316,5 +339,42 @@ if (uploadForm) {
 
   searchInput.addEventListener('input', () => carregar(searchInput.value));
   carregar();
+  })();
+}
+
+// Painel do paciente
+const painel = document.getElementById('painel');
+if (painel) {
+  (async function initPainel() {
+    initProfileMenu();
+    const grid = document.getElementById('examGrid');
+    const res = await api('/api/ecografias');
+    const data = await res.json();
+    grid.innerHTML = '';
+    data.forEach((item) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const link = document.createElement('a');
+      link.href = `/api/ecografias/${item.id}/pdf`;
+      link.target = '_blank';
+      if (item.thumbFilename) {
+        const img = document.createElement('img');
+        img.src = '/thumbs/' + item.thumbFilename;
+        link.appendChild(img);
+      } else {
+        const div = document.createElement('div');
+        div.textContent = 'PDF';
+        link.appendChild(div);
+      }
+      const date = document.createElement('p');
+      date.textContent = item.examDate;
+      card.appendChild(link);
+      card.appendChild(date);
+      grid.appendChild(card);
+    });
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await api('/logout', { method: 'POST' });
+      location.href = '/login.html';
+    });
   })();
 }

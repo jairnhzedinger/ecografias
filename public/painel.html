@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CPF - EcoShare</title>
+  <title>Painel - EcoShare</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -22,15 +22,9 @@
       </div>
     </div>
   </header>
-  <div class="container glass login-container">
-    <form id="cpfForm" method="post" action="/api/me/cpf">
-      <div>
-        <label>CPF</label>
-        <input type="text" name="cpf" required>
-      </div>
-      <button type="submit">Salvar</button>
-    </form>
-    <div id="cpfError" style="color:red;"></div>
+  <div class="container glass" id="painel">
+    <h2>Meus Exames</h2>
+    <div id="examGrid" class="grid"></div>
   </div>
   <footer class="footer glass">
     <a href="/politica">Política de Privacidade</a>

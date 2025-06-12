@@ -304,3 +304,34 @@ footer.footer {
 .footer a:hover {
   text-decoration: underline;
 }
+.profile-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-pic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.profile-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  background: #fff;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+body.dark .profile-dropdown {
+  background: #333;
+  color: var(--text-dark);
+  border-color: #444;
+}
+
+.profile-dropdown.show {
+  display: block;
+}
