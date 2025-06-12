@@ -18,7 +18,8 @@
     "multer": "^2.0.1",
     "qrcode-terminal": "^0.12.0",
     "sharp": "^0.34.2",
-    "whatsapp-web.js": "^1.30.0"
+    "whatsapp-web.js": "^1.30.0",
+    "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
     "jest": "^29.7.0",

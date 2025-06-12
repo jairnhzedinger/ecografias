@@ -6,6 +6,7 @@ const sharp = require('sharp');
 const session = require('express-session');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -68,7 +69,8 @@ let users = {};
 try {
   users = JSON.parse(fs.readFileSync(USERS_PATH));
 } catch (_) {
-  users = { admin: 'admin' };
+  const hash = bcrypt.hashSync('admin', 10);
+  users = { admin: hash };
   fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
 }
 
@@ -113,7 +115,6 @@ const upload = multer({
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(UPLOAD_DIR));
 app.use('/thumbs', express.static(THUMB_DIR));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -132,6 +133,15 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: 'não autenticado' });
 }
 
+app.get('/uploads/:file', requireAuth, (req, res) => {
+  const file = path.basename(req.params.file);
+  const filePath = path.join(UPLOAD_DIR, file);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('não encontrado');
+  }
+  res.sendFile(filePath);
+});
+
 app.get('/', (req, res) => {
   const page = req.session.user ? 'index.html' : 'login.html';
   res.sendFile(path.join(__dirname, 'public', page));
@@ -139,10 +149,21 @@ app.get('/', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  if (users[username] && users[username] === password) {
-    req.session.user = username;
-    logAction(`login ${username}`);
-    return res.json({ ok: true });
+  const stored = users[username];
+  if (stored) {
+    const isHash = typeof stored === 'string' && stored.startsWith('$2');
+    const ok = isHash
+      ? bcrypt.compareSync(password, stored)
+      : stored === password;
+    if (ok) {
+      if (!isHash) {
+        users[username] = bcrypt.hashSync(password, 10);
+        fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+      }
+      req.session.user = username;
+      logAction(`login ${username}`);
+      return res.json({ ok: true });
+    }
   }
   res.status(401).json({ error: 'credenciais inválidas' });
 });
