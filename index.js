@@ -148,12 +148,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
+const GOOGLE_CALLBACK_URL =
+  process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback';
+
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID || 'dummy',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'dummy',
-      callbackURL: '/auth/google/callback',
+      callbackURL: GOOGLE_CALLBACK_URL,
     },
     (accessToken, refreshToken, profile, done) => {
       const email =
@@ -550,3 +553,4 @@ if (require.main === module) {
 }
 
 module.exports = app;
+module.exports.getGoogleCallbackURL = () => GOOGLE_CALLBACK_URL;

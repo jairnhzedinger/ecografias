@@ -265,15 +265,18 @@ button:hover {
 .google-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   background: #fff;
   color: #444;
   border: 1px solid #ccc;
-  padding: 0 12px;
+  padding: 0 16px;
   height: 40px;
   border-radius: 4px;
   text-decoration: none;
   font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 .google-btn img {
@@ -282,5 +285,5 @@ button:hover {
 }
 
 .google-btn:hover {
-  background: #f2f2f2;
+  background: #f7f7f7;
 }
