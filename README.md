@@ -2,17 +2,43 @@
 
 Sistema para disponibilizar ecografias online com upload, compartilhamento por WhatsApp e visualização de laudos em PDF.
 
+## Requisitos
+
+- Node.js 18 ou superior
+- Git para clonar o repositório
+
 ## Como iniciar o projeto
 
-1. Instale as dependências:
-   ```bash
-   npm install
-   ```
-2. Inicie o servidor:
-   ```bash
-   npm start
-   ```
+### 1. Obter o código
+
+```bash
+git clone <url-do-repositorio>
+cd ecografias
+```
+
+### 2. Instalar o Node.js
+
+- **Windows**: baixe o instalador em [nodejs.org](https://nodejs.org/) e siga as instruções.
+- **Linux**: instale via gerenciador de pacotes, por exemplo `sudo apt install nodejs npm`.
+- **macOS**: use o [Homebrew](https://brew.sh/) (`brew install node`) ou o instalador do site oficial.
+
+Verifique a instalação com `node -v`.
+
+### 3. Instalar dependências
+
+```bash
+npm install
+```
+
+### 4. Iniciar o servidor
+
+```bash
+npm start
+```
+
 O servidor iniciará na porta `3000` por padrão e servirá arquivos estáticos do diretório `public`.
+
+Para executar a suíte de testes utilize `npm test`.
 
 ## API
 
