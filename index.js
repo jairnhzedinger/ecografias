@@ -143,14 +143,23 @@ app.use(
     saveUninitialized: true,
   })
 );
-const GOOGLE_CALLBACK_URL =
+const GOOGLE_CALLBACK_PATH =
   process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback';
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID || 'dummy',
-  process.env.GOOGLE_CLIENT_SECRET || 'dummy',
-  GOOGLE_CALLBACK_URL
+  process.env.GOOGLE_CLIENT_SECRET || 'dummy'
 );
+
+function getCallbackURL(req) {
+  let url = GOOGLE_CALLBACK_PATH;
+  if (!/^https?:\/\//.test(url)) {
+    url = `${req.protocol}://${req.get('host')}${
+      url.startsWith('/') ? '' : '/'
+    }${url}`;
+  }
+  return url;
+}
 
 function requireAuth(req, res, next) {
   if (req.session && req.session.user) {
@@ -205,10 +214,13 @@ app.post('/login', (req, res) => {
 app.get('/auth/google', (req, res) => {
   const state = Math.random().toString(36).substring(2);
   req.session.state = state;
+  const callback = getCallbackURL(req);
+  oauth2Client.redirectUri = callback;
   const url = oauth2Client.generateAuthUrl({
     access_type: 'online',
     scope: ['profile', 'email'],
     state,
+    redirect_uri: callback,
   });
   res.redirect(url);
 });
@@ -219,7 +231,12 @@ app.get('/auth/google/callback', async (req, res) => {
     return res.redirect('/login.html');
   }
   try {
-    const { tokens } = await oauth2Client.getToken(code);
+    const callback = getCallbackURL(req);
+    const { tokens } = await oauth2Client.getToken({
+      code,
+      redirect_uri: callback,
+    });
+    oauth2Client.redirectUri = callback;
     oauth2Client.setCredentials(tokens);
     const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
     const info = await oauth2.userinfo.get();
@@ -563,4 +580,5 @@ if (require.main === module) {
 }
 
 module.exports = app;
-module.exports.getGoogleCallbackURL = () => GOOGLE_CALLBACK_URL;
+module.exports.getGoogleCallbackURL = () => GOOGLE_CALLBACK_PATH;
+module.exports._getCallbackURL = getCallbackURL;

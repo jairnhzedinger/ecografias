@@ -13,7 +13,7 @@ describe('Login Google', () => {
     jest.resetModules();
     app = require('../index');
     const res = await request(app).get('/auth/google');
-    expect(res.headers.location).toContain(encodeURIComponent('/cbtest'));
+    expect(decodeURIComponent(res.headers.location)).toContain('/cbtest');
     delete process.env.GOOGLE_CALLBACK_URL;
   });
 });
