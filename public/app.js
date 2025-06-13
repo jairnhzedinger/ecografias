@@ -23,11 +23,18 @@ function initScrollEffects() {
 
 initScrollEffects();
 
+let topZ = 1001;
+
+function bringToFront(win) {
+  win.style.zIndex = ++topZ;
+}
+
 function openWindow(id) {
   const win = document.getElementById(id + 'Window');
   if (win) {
     win.style.display = 'block';
     win.classList.remove('maximized');
+    bringToFront(win);
   }
 }
 
@@ -43,7 +50,10 @@ function minimizeWindow(id) {
 
 function maximizeWindow(id) {
   const win = document.getElementById(id + 'Window');
-  if (win) win.classList.toggle('maximized');
+  if (win) {
+    win.classList.toggle('maximized');
+    bringToFront(win);
+  }
 }
 
 function makeDraggable(win) {
@@ -52,6 +62,7 @@ function makeDraggable(win) {
   if (header) {
     header.addEventListener('mousedown', (e) => {
       if (e.target.closest('.window-actions')) return;
+      bringToFront(win);
       const offsetX = e.clientX - win.offsetLeft;
       const offsetY = e.clientY - win.offsetTop;
       function onMove(ev) {
@@ -66,6 +77,7 @@ function makeDraggable(win) {
   }
   if (resizer) {
     resizer.addEventListener('mousedown', (e) => {
+      bringToFront(win);
       const startX = e.clientX;
       const startY = e.clientY;
       const startW = win.offsetWidth;
