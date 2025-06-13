@@ -40,7 +40,10 @@ function openWindow(id) {
 
 function closeWindow(id) {
   const win = document.getElementById(id + 'Window');
-  if (win) win.style.display = 'none';
+  if (win) {
+    win.style.display = 'none';
+    win.classList.remove('maximized');
+  }
 }
 
 function minimizeWindow(id) {
