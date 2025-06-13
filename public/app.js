@@ -99,6 +99,13 @@ function makeDraggable(win) {
 
 document.querySelectorAll('.window').forEach(makeDraggable);
 document.querySelectorAll('.dock-icon').forEach((i) => i.addEventListener('click', () => openWindow(i.dataset.window)));
+document.querySelectorAll('.window-actions button').forEach((btn) => {
+  const target = btn.dataset.target;
+  const action = btn.dataset.action;
+  if (target && action === 'minimize') btn.addEventListener('click', () => minimizeWindow(target));
+  if (target && action === 'maximize') btn.addEventListener('click', () => maximizeWindow(target));
+  if (target && action === 'close') btn.addEventListener('click', () => closeWindow(target));
+});
 
 window.openWindow = openWindow;
 window.closeWindow = closeWindow;
