@@ -448,3 +448,79 @@ footer.footer {
     align-items: center;
   }
 }
+
+.dock {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.dock-icon {
+  background: var(--neutral);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.dock-icon:hover {
+  background: #555;
+  color: #fff;
+}
+
+.window {
+  position: fixed;
+  top: 60px;
+  left: 60px;
+  min-width: 300px;
+  min-height: 200px;
+  background: var(--neutral-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: none;
+  z-index: 500;
+}
+
+.window.maximized {
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: calc(100% - 50px) !important;
+}
+
+.window-header {
+  background: var(--primary);
+  color: #fff;
+  padding: 5px 10px;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.window-actions button {
+  background: transparent;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.window-body {
+  padding: 10px;
+  overflow: auto;
+  max-height: calc(100% - 40px);
+}
+
+.window-resizer {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  right: 0;
+  bottom: 0;
+  cursor: se-resize;
+}

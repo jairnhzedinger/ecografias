@@ -23,6 +23,68 @@ function initScrollEffects() {
 
 initScrollEffects();
 
+function openWindow(id) {
+  const win = document.getElementById(id + 'Window');
+  if (win) {
+    win.style.display = 'block';
+    win.classList.remove('maximized');
+  }
+}
+
+function closeWindow(id) {
+  const win = document.getElementById(id + 'Window');
+  if (win) win.style.display = 'none';
+}
+
+function maximizeWindow(id) {
+  const win = document.getElementById(id + 'Window');
+  if (win) win.classList.toggle('maximized');
+}
+
+function makeDraggable(win) {
+  const header = win.querySelector('.window-header');
+  const resizer = win.querySelector('.window-resizer');
+  if (header) {
+    header.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.window-actions')) return;
+      const offsetX = e.clientX - win.offsetLeft;
+      const offsetY = e.clientY - win.offsetTop;
+      function onMove(ev) {
+        win.style.left = ev.clientX - offsetX + 'px';
+        win.style.top = ev.clientY - offsetY + 'px';
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', () => {
+        document.removeEventListener('mousemove', onMove);
+      }, { once: true });
+    });
+  }
+  if (resizer) {
+    resizer.addEventListener('mousedown', (e) => {
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startW = win.offsetWidth;
+      const startH = win.offsetHeight;
+      function onMove(ev) {
+        win.style.width = startW + ev.clientX - startX + 'px';
+        win.style.height = startH + ev.clientY - startY + 'px';
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', () => {
+        document.removeEventListener('mousemove', onMove);
+      }, { once: true });
+    });
+  }
+}
+
+document.querySelectorAll('.window').forEach(makeDraggable);
+document.querySelectorAll('.dock-icon').forEach((i) => i.addEventListener('click', () => openWindow(i.dataset.window)));
+
+window.openWindow = openWindow;
+window.closeWindow = closeWindow;
+window.maximizeWindow = maximizeWindow;
+openWindow('upload');
+
 // Login page
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
@@ -82,12 +144,12 @@ if (uploadForm) {
     } catch (_) {}
 
     if (userRole !== 'admin') {
-      document.querySelector('[data-tab="usuarios"]').style.display = 'none';
-      document.querySelector('[data-tab="stats"]').style.display = 'none';
+      document.querySelector('[data-window="usuarios"]').style.display = 'none';
+      document.querySelector('[data-window="stats"]').style.display = 'none';
     }
     if (userRole === 'paciente') {
-      document.querySelector('[data-tab="upload"]').style.display = 'none';
-      document.querySelector('[data-tab="mensagem"]').style.display = 'none';
+      document.querySelector('[data-window="upload"]').style.display = 'none';
+      document.querySelector('[data-window="mensagem"]').style.display = 'none';
     }
 
   const lista = document.getElementById('lista');
@@ -97,8 +159,7 @@ if (uploadForm) {
   const shareLinkEl = document.getElementById('shareLink');
   const shareClose = document.getElementById('shareClose');
   const qrCanvas = document.getElementById('qrCanvas');
-  const tabs = document.querySelectorAll('.tab');
-  const contents = document.querySelectorAll('.tab-content');
+  const icons = document.querySelectorAll('.dock-icon');
   const userForm = document.getElementById('userForm');
   const userList = document.querySelector('#userList tbody');
   const messageTemplate = document.getElementById('messageTemplate');
@@ -109,13 +170,8 @@ if (uploadForm) {
   const waStatus = document.getElementById('waStatus');
   const waReset = document.getElementById('waReset');
 
-  tabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      tabs.forEach((t) => t.classList.remove('active'));
-      contents.forEach((c) => c.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
-    });
+  icons.forEach((icon) => {
+    icon.addEventListener('click', () => openWindow(icon.dataset.window));
   });
 
   if (shareClose) {

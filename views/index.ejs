@@ -12,111 +12,166 @@
 <body>
 <%- include('partials/header_main', { title: 'EcoShare' }) %>
   <div class='container glass scroll-fade'>
-    <div class="tabs">
-      <div class="tab active" data-tab="upload">Enviar</div>
-      <div class="tab" data-tab="lista">Lista</div>
-      <div class="tab" data-tab="usuarios">Usuarios</div>
-      <div class="tab" data-tab="mensagem">Mensagem</div>
-      <div class="tab" data-tab="stats">Estatisticas</div>
+    <div class="dock">
+      <div class="dock-icon" data-window="upload">Enviar</div>
+      <div class="dock-icon" data-window="lista">Lista</div>
+      <div class="dock-icon" data-window="usuarios">Usuarios</div>
+      <div class="dock-icon" data-window="mensagem">Mensagem</div>
+      <div class="dock-icon" data-window="stats">Estatisticas</div>
     </div>
-    <div id="uploadTab" class="tab-content active">
-      <h2>Enviar nova ecografia</h2>
-      <form id="uploadForm">
-      <div>
-        <label>Paciente</label>
-        <input type="text" name="patientName" required>
-      </div>
-      <div>
-        <label>CPF</label>
-        <input type="text" name="cpf" required>
-      </div>
-      <div>
-        <label>WhatsApp</label>
-        <input type="text" name="whatsapp" placeholder="DDD + número (ex: 51912345678)" required>
-      </div>
-      <div>
-        <label>Data do exame</label>
-        <input type="date" name="examDate" required>
-      </div>
-      <div>
-        <label>Observações</label>
-        <textarea name="notes"></textarea>
-      </div>
-      <div>
-        <input type="file" name="file" accept="application/pdf" required />
-      </div>
-      <button type="submit">Enviar</button>
-    </form>
-    </div>
-    <div id="listaTab" class="tab-content">
-      <h2>Busca</h2>
-      <input type="text" id="searchInput" placeholder="Nome, CPF ou observação"/>
 
-      <h2>Lista de ecografias</h2>
-      <div class="table-wrapper">
-      <table id="lista" class="table">
-      <thead>
-        <tr>
-          <th>Prévia</th>
-          <th>Paciente</th>
-          <th>Data</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    </div>
-    <div id="shareModal" class="modal">
-      <div class="modal-content glass">
-        <span id="shareClose" class="close">&times;</span>
-        <a id="shareLink" href="#" target="_blank"></a>
-        <canvas id="qrCanvas"></canvas>
+    <div id="uploadWindow" class="window">
+      <div class="window-header">
+        <span>Enviar</span>
+        <div class="window-actions">
+          <button onclick="maximizeWindow('upload')">&#9633;</button>
+          <button onclick="closeWindow('upload')">&times;</button>
+        </div>
       </div>
-    </div>
-    </div>
-    <div id="usuariosTab" class="tab-content">
-      <h2>Usuarios</h2>
-      <form id="userForm">
-        <input type="text" name="username" placeholder="Usuario" required />
-        <input type="password" name="password" placeholder="Senha" required />
-        <select name="role">
-          <option value="medico">Medico</option>
-          <option value="paciente">Paciente</option>
-          <option value="admin">Admin</option>
-        </select>
-        <button type="submit">Adicionar</button>
-      </form>
-      <div class="table-wrapper">
-        <table id="userList" class="table">
-          <thead><tr><th>Usuario</th><th>Acoes</th></tr></thead>
-          <tbody></tbody>
-        </table>
+      <div class="window-body">
+        <h2>Enviar nova ecografia</h2>
+        <form id="uploadForm">
+          <div>
+            <label>Paciente</label>
+            <input type="text" name="patientName" required>
+          </div>
+          <div>
+            <label>CPF</label>
+            <input type="text" name="cpf" required>
+          </div>
+          <div>
+            <label>WhatsApp</label>
+            <input type="text" name="whatsapp" placeholder="DDD + número (ex: 51912345678)" required>
+          </div>
+          <div>
+            <label>Data do exame</label>
+            <input type="date" name="examDate" required>
+          </div>
+          <div>
+            <label>Observações</label>
+            <textarea name="notes"></textarea>
+          </div>
+          <div>
+            <input type="file" name="file" accept="application/pdf" required>
+          </div>
+          <button type="submit">Enviar</button>
+        </form>
       </div>
+      <div class="window-resizer"></div>
     </div>
-    <div id="mensagemTab" class="tab-content">
-      <h2>Mensagem do WhatsApp</h2>
-      <textarea id="messageTemplate" rows="4"></textarea>
-      <button id="saveMessage">Salvar</button>
-    </div>
-    <div id="statsTab" class="tab-content">
-      <h2>Estatisticas</h2>
-      <div id="statsInfo"></div>
-      <button id="refreshStats">Atualizar</button>
-      <div class="table-wrapper">
-        <table id="downloadsTable" class="table">
-          <thead><tr><th>ID</th><th>Data</th></tr></thead>
-          <tbody></tbody>
-        </table>
+
+    <div id="listaWindow" class="window">
+      <div class="window-header">
+        <span>Lista</span>
+        <div class="window-actions">
+          <button onclick="maximizeWindow('lista')">&#9633;</button>
+          <button onclick="closeWindow('lista')">&times;</button>
+        </div>
       </div>
-      <div class="links">
-        <a href="/api/logs" id="logLink">Logs</a>
-        <a href="/api/ecografias.csv" id="csvLink">CSV</a>
-        <a href="/api/backup" id="backupLink">Backup</a>
+      <div class="window-body">
+        <h2>Busca</h2>
+        <input type="text" id="searchInput" placeholder="Nome, CPF ou observação">
+
+        <h2>Lista de ecografias</h2>
+        <div class="table-wrapper">
+          <table id="lista" class="table">
+            <thead>
+              <tr>
+                <th>Prévia</th>
+                <th>Paciente</th>
+                <th>Data</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="shareModal" class="modal">
+          <div class="modal-content glass">
+            <span id="shareClose" class="close">&times;</span>
+            <a id="shareLink" href="#" target="_blank"></a>
+            <canvas id="qrCanvas"></canvas>
+          </div>
+        </div>
       </div>
-  <div id="waStatus"></div>
-  <button id="waReset">Reiniciar WhatsApp</button>
+      <div class="window-resizer"></div>
     </div>
-  </div>
+
+    <div id="usuariosWindow" class="window">
+      <div class="window-header">
+        <span>Usuarios</span>
+        <div class="window-actions">
+          <button onclick="maximizeWindow('usuarios')">&#9633;</button>
+          <button onclick="closeWindow('usuarios')">&times;</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h2>Usuarios</h2>
+        <form id="userForm">
+          <input type="text" name="username" placeholder="Usuario" required>
+          <input type="password" name="password" placeholder="Senha" required>
+          <select name="role">
+            <option value="medico">Medico</option>
+            <option value="paciente">Paciente</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button type="submit">Adicionar</button>
+        </form>
+        <div class="table-wrapper">
+          <table id="userList" class="table">
+            <thead><tr><th>Usuario</th><th>Acoes</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="window-resizer"></div>
+    </div>
+
+    <div id="mensagemWindow" class="window">
+      <div class="window-header">
+        <span>Mensagem</span>
+        <div class="window-actions">
+          <button onclick="maximizeWindow('mensagem')">&#9633;</button>
+          <button onclick="closeWindow('mensagem')">&times;</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h2>Mensagem do WhatsApp</h2>
+        <textarea id="messageTemplate" rows="4"></textarea>
+        <button id="saveMessage">Salvar</button>
+      </div>
+      <div class="window-resizer"></div>
+    </div>
+
+    <div id="statsWindow" class="window">
+      <div class="window-header">
+        <span>Estatisticas</span>
+        <div class="window-actions">
+          <button onclick="maximizeWindow('stats')">&#9633;</button>
+          <button onclick="closeWindow('stats')">&times;</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h2>Estatisticas</h2>
+        <div id="statsInfo"></div>
+        <button id="refreshStats">Atualizar</button>
+        <div class="table-wrapper">
+          <table id="downloadsTable" class="table">
+            <thead><tr><th>ID</th><th>Data</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="links">
+          <a href="/api/logs" id="logLink">Logs</a>
+          <a href="/api/ecografias.csv" id="csvLink">CSV</a>
+          <a href="/api/backup" id="backupLink">Backup</a>
+        </div>
+        <div id="waStatus"></div>
+        <button id="waReset">Reiniciar WhatsApp</button>
+      </div>
+      <div class="window-resizer"></div>
+    </div>
+
   </div>
 <%- include('partials/footer') %>
   <script src="/qrcode.min.js"></script>
