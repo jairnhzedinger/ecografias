@@ -352,6 +352,18 @@ footer.footer {
   z-index: 1000;
 }
 
+.profile-dropdown a,
+.profile-dropdown button {
+  display: block;
+  padding: 5px;
+  text-decoration: none;
+  color: inherit;
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
+}
+
 
 .profile-dropdown.show {
   display: block;
@@ -451,7 +463,7 @@ footer.footer {
 
 .dock {
   position: fixed;
-  bottom: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
