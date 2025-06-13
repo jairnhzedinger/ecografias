@@ -1,7 +1,7 @@
 {
   "admin": {
     "password": "$2a$10$eTjSo6karv2GPs2kiT2/PenbTk/rOPXYYJie.efuwxI5xFD988Lqu",
-    "role": "admin",
+    "role": "paciente",
     "cpf": "49521489049"
   },
   "jair.edinger2@gmail.com": {
@@ -26,5 +26,11 @@
     "name": "Gxbriiel",
     "picture": "https://lh3.googleusercontent.com/a/ACg8ocK92cfleyKhVgx-GS7WRqGhn2ABPG4EQKRL0_WxorhX0MRQTMwB=s96-c",
     "cpf": "05648775067"
+  },
+  "kauadapperandrade@gmail.com": {
+    "role": "paciente",
+    "name": "Kauã Dapper",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocJcim2gKT6ntggxON1YHI0FoYOkw79Un1hHvC-krakgzbliJ88=s96-c",
+    "cpf": "04615648073"
   }
 }

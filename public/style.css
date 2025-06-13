@@ -506,6 +506,7 @@ footer.footer {
   justify-content: space-between;
   align-items: center;
   user-select: none;
+  border-radius: 7px;
 }
 
 .window-actions {
