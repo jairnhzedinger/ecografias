@@ -36,6 +36,11 @@ function closeWindow(id) {
   if (win) win.style.display = 'none';
 }
 
+function minimizeWindow(id) {
+  const win = document.getElementById(id + 'Window');
+  if (win) win.style.display = 'none';
+}
+
 function maximizeWindow(id) {
   const win = document.getElementById(id + 'Window');
   if (win) win.classList.toggle('maximized');
@@ -83,7 +88,7 @@ document.querySelectorAll('.dock-icon').forEach((i) => i.addEventListener('click
 window.openWindow = openWindow;
 window.closeWindow = closeWindow;
 window.maximizeWindow = maximizeWindow;
-openWindow('upload');
+window.minimizeWindow = minimizeWindow;
 
 // Login page
 const loginForm = document.getElementById('loginForm');
