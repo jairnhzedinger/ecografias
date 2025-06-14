@@ -124,6 +124,31 @@ window.closeWindow = closeWindow;
 window.maximizeWindow = maximizeWindow;
 window.minimizeWindow = minimizeWindow;
 
+function showList() {
+  const gestaoBody = document.querySelector('.gestao-body');
+  const backBtn = document.getElementById('gestaoBack');
+  const sections = document.querySelectorAll('.gestao-section');
+  if (gestaoBody) gestaoBody.classList.remove('show-section');
+  if (backBtn) backBtn.style.display = 'none';
+  sections.forEach((s) => {
+    s.style.display = 'none';
+  });
+}
+
+function showSection(id) {
+  const gestaoBody = document.querySelector('.gestao-body');
+  const backBtn = document.getElementById('gestaoBack');
+  const sections = document.querySelectorAll('.gestao-section');
+  if (gestaoBody) gestaoBody.classList.add('show-section');
+  if (backBtn) backBtn.style.display = 'block';
+  sections.forEach((s) => {
+    s.style.display = s.id === id ? 'block' : 'none';
+  });
+}
+
+window.showList = showList;
+window.showSection = showSection;
+
 // Login page
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
@@ -203,7 +228,6 @@ if (uploadForm) {
   const shareClose = document.getElementById('shareClose');
   const qrCanvas = document.getElementById('qrCanvas');
   const icons = document.querySelectorAll('.dock-icon');
-  const menu = document.querySelector('.gestao-menu');
   const menuItems = document.querySelectorAll('.gestao-menu .item');
   const backBtn = document.getElementById('gestaoBack');
   const sections = document.querySelectorAll('.gestao-section');
@@ -221,21 +245,6 @@ if (uploadForm) {
     icon.addEventListener('click', () => openWindow(icon.dataset.window));
   });
 
-  function showList() {
-    menu.style.display = 'block';
-    backBtn.style.display = 'none';
-    sections.forEach((s) => {
-      s.style.display = 'none';
-    });
-  }
-
-  function showSection(id) {
-    menu.style.display = 'none';
-    backBtn.style.display = 'block';
-    sections.forEach((s) => {
-      s.style.display = s.id === id ? 'block' : 'none';
-    });
-  }
 
   menuItems.forEach((i) => i.addEventListener('click', () => showSection(i.dataset.section)));
   if (backBtn) backBtn.addEventListener('click', showList);
@@ -457,7 +466,14 @@ if (uploadForm) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { openWindow, closeWindow, minimizeWindow, maximizeWindow };
+  module.exports = {
+    openWindow,
+    closeWindow,
+    minimizeWindow,
+    maximizeWindow,
+    showList,
+    showSection,
+  };
 }
 
 // Painel do paciente
