@@ -15,13 +15,13 @@ describe('Dropup do perfil', () => {
       </div>`;
   });
 
-  test('abre ao passar o mouse', async () => {
+  test('abre ao clicar', async () => {
     await initProfileMenu();
-    const menu = document.querySelector('.profile-menu');
+    const pic = document.getElementById('profilePic');
     const dropdown = document.getElementById('profileDropdown');
-    menu.dispatchEvent(new Event('mouseenter'));
+    pic.dispatchEvent(new Event('click'));
     expect(dropdown.classList.contains('show')).toBe(true);
-    menu.dispatchEvent(new Event('mouseleave'));
+    document.dispatchEvent(new Event('click'));
     expect(dropdown.classList.contains('show')).toBe(false);
   });
 });

@@ -457,13 +457,19 @@ footer.footer {
   text-decoration: none;
   color: inherit;
   background: none;
-  border: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   text-align: left;
   width: 100%;
 }
 .profile-dropdown a:hover,
 .profile-dropdown button:hover {
-  background: var(--neutral);
+  background: var(--primary);
+  color: #fff;
+}
+.profile-dropdown a:hover .icon,
+.profile-dropdown button:hover .icon {
+  filter: brightness(0) invert(1);
 }
 
 
@@ -471,9 +477,6 @@ footer.footer {
   display: block;
 }
 
-.profile-menu:hover .profile-dropdown {
-  display: block;
-}
 .scroll-fade {
   opacity: 0;
   transform: translateY(20px);
