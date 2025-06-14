@@ -522,7 +522,7 @@ footer.footer {
 }
 
 .window-header {
-  background: var(--primary);
+  background: var(--neutral-bg);
   color: #fff;
   padding: 5px 10px;
   cursor: move;
