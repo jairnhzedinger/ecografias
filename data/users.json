@@ -16,21 +16,27 @@
     "picture": "https://lh3.googleusercontent.com/a/ACg8ocLEQmEL9wJV3VIGdMO231t8fGWqM_LCULPXq2jjXRki_JECww=s96-c"
   },
   "caioarr12@gmail.com": {
-    "role": "paciente",
+    "role": "admin",
     "name": "Caio Arruda",
     "picture": "https://lh3.googleusercontent.com/a/ACg8ocJE5j00X29VVTDTypWl67ZSjhM3chmAhVatzN1v0dhhv06QWxAn=s96-c",
     "cpf": "03851075013"
   },
   "gabrielzwetsch27@gmail.com": {
-    "role": "paciente",
+    "role": "admin",
     "name": "Gxbriiel",
     "picture": "https://lh3.googleusercontent.com/a/ACg8ocK92cfleyKhVgx-GS7WRqGhn2ABPG4EQKRL0_WxorhX0MRQTMwB=s96-c",
     "cpf": "05648775067"
   },
   "kauadapperandrade@gmail.com": {
-    "role": "paciente",
+    "role": "admin",
     "name": "Kauã Dapper",
     "picture": "https://lh3.googleusercontent.com/a/ACg8ocJcim2gKT6ntggxON1YHI0FoYOkw79Un1hHvC-krakgzbliJ88=s96-c",
     "cpf": "04615648073"
+  },
+  "thomasbrasilschmidt@gmail.com": {
+    "role": "admin",
+    "name": "Thomas Schmidt",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocJLbRdMiFYCmPrLVKrGVVwfCC1bFAdAI94BLCslKPePV4tW61p7=s96-c",
+    "cpf": "05347161051"
   }
 }
