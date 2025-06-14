@@ -88,8 +88,32 @@ header {
   text-align: center;
 }
 
+.table th {
+  background: var(--neutral);
+}
+
 .table img {
   max-width: 100px;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+  background: var(--neutral-bg);
+}
+
+#usuariosSection form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+#usuariosSection form input,
+#usuariosSection form select {
+  flex: 1;
+}
+
+#usuariosSection form button[type='submit'] {
+  flex-basis: 100%;
 }
 
 .tabs {
