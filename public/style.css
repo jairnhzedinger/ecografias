@@ -569,19 +569,28 @@ footer.footer {
 
 .gestao-menu {
   display: flex;
-  gap: 6px;
-  margin-bottom: 10px;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
-.gestao-menu button {
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  background: var(--neutral-bg);
-  border-radius: var(--radius-sm);
+.gestao-menu .item {
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
   cursor: pointer;
 }
 
-.gestao-menu button:hover {
+.gestao-menu .item:last-child {
+  border-bottom: none;
+}
+
+.gestao-menu .item:hover {
   background: var(--primary);
   color: #fff;
+}
+
+.gestao-back {
+  cursor: pointer;
+  margin-bottom: 10px;
 }
