@@ -22,14 +22,14 @@
     </div>
     <div class="window-body gestao-body">
       <div class="gestao-menu">
-        <div class="item" data-section="uploadSection">Enviar</div>
-        <div class="item" data-section="listaSection">Lista</div>
-        <div class="item" data-section="usuariosSection">Usuarios</div>
-        <div class="item" data-section="mensagemSection">Mensagem</div>
-        <div class="item" data-section="statsSection">Estatisticas</div>
+        <div class="item" data-section="uploadSection"><img src="/icons/upload.svg" class="icon" alt=""> Enviar</div>
+        <div class="item" data-section="listaSection"><img src="/icons/list.svg" class="icon" alt=""> Lista</div>
+        <div class="item" data-section="usuariosSection"><img src="/icons/users.svg" class="icon" alt=""> Usuarios</div>
+        <div class="item" data-section="mensagemSection"><img src="/icons/message-square.svg" class="icon" alt=""> Mensagem</div>
+        <div class="item" data-section="statsSection"><img src="/icons/bar-chart-2.svg" class="icon" alt=""> Estatisticas</div>
       </div>
       <div class="gestao-content">
-        <div id="gestaoBack" class="gestao-back" style="display:none">&lt;</div>
+        <div id="gestaoBack" class="gestao-back" style="display:none"><img src="/icons/arrow-left.svg" class="icon" alt=""></div>
         <div id="uploadSection" class="gestao-section">
           <h2>Enviar nova ecografia</h2>
           <form id="uploadForm">
@@ -56,7 +56,7 @@
             <div>
               <input type="file" name="file" accept="application/pdf" required>
             </div>
-            <button type="submit">Enviar</button>
+            <button type="submit"><img src="/icons/upload.svg" class="icon" alt=""> Enviar</button>
           </form>
         </div>
         <div id="listaSection" class="gestao-section" style="display:none">
@@ -94,7 +94,7 @@
               <option value="paciente">Paciente</option>
               <option value="admin">Admin</option>
             </select>
-            <button type="submit">Adicionar</button>
+            <button type="submit"><img src="/icons/user-plus.svg" class="icon" alt=""> Adicionar</button>
           </form>
           <div class="table-wrapper">
             <table id="userList" class="table table-striped">
@@ -106,12 +106,12 @@
         <div id="mensagemSection" class="gestao-section" style="display:none">
           <h2>Mensagem do WhatsApp</h2>
           <textarea id="messageTemplate" rows="4"></textarea>
-          <button id="saveMessage">Salvar</button>
+          <button id="saveMessage"><img src="/icons/save.svg" class="icon" alt=""> Salvar</button>
         </div>
         <div id="statsSection" class="gestao-section" style="display:none">
           <h2>Estatisticas</h2>
           <div id="statsInfo"></div>
-          <button id="refreshStats">Atualizar</button>
+          <button id="refreshStats"><img src="/icons/refresh-cw.svg" class="icon" alt=""> Atualizar</button>
           <div class="table-wrapper">
             <table id="downloadsTable" class="table">
               <thead><tr><th>ID</th><th>Data</th></tr></thead>
@@ -119,12 +119,12 @@
             </table>
           </div>
           <div class="links">
-            <a href="/api/logs" id="logLink">Logs</a>
-            <a href="/api/ecografias.csv" id="csvLink">CSV</a>
-            <a href="/api/backup" id="backupLink">Backup</a>
+            <a href="/api/logs" id="logLink"><img src="/icons/file-text.svg" class="icon" alt=""> Logs</a>
+            <a href="/api/ecografias.csv" id="csvLink"><img src="/icons/download.svg" class="icon" alt=""> CSV</a>
+            <a href="/api/backup" id="backupLink"><img src="/icons/archive.svg" class="icon" alt=""> Backup</a>
           </div>
           <div id="waStatus"></div>
-          <button id="waReset">Reiniciar WhatsApp</button>
+          <button id="waReset"><img src="/icons/refresh-ccw.svg" class="icon" alt=""> Reiniciar WhatsApp</button>
         </div>
       </div>
     </div>
@@ -132,13 +132,13 @@
   </div>
 
   <div class="dock">
-    <div class="dock-icon" data-window="gestao">Gestão</div>
+    <div class="dock-icon" data-window="gestao"><img src="/icons/settings.svg" class="icon" alt=""> Gestão</div>
     <div class="dock-icon profile-menu">
       <img id="profilePic" class="profile-pic" src="https://placehold.co/32x32" alt="Perfil">
       <div id="profileDropdown" class="profile-dropdown">
-        <a href="/politica">Política de Privacidade</a>
-        <a href="/termos">Termos de Serviço</a>
-        <button id="logoutBtn">Sair</button>
+        <a href="/politica"><img src="/icons/shield.svg" class="icon" alt=""> Política de Privacidade</a>
+        <a href="/termos"><img src="/icons/file-text.svg" class="icon" alt=""> Termos de Serviço</a>
+        <button id="logoutBtn"><img src="/icons/log-out.svg" class="icon" alt=""> Sair</button>
       </div>
     </div>
   </div>

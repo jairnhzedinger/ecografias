@@ -280,7 +280,7 @@ if (uploadForm) {
       const actionsTd = document.createElement('td');
 
       const shareBtn = document.createElement('button');
-      shareBtn.textContent = 'Compartilhar';
+      shareBtn.innerHTML = '<img src="/icons/share-2.svg" class="icon" alt=""> Compartilhar';
       shareBtn.onclick = async () => {
         const r = await api(`/api/ecografias/${item.id}/share`, { method: 'POST' });
         const d = await r.json();
@@ -291,25 +291,25 @@ if (uploadForm) {
         shareModal.style.display = 'flex';
       };
       const resendBtn = document.createElement('button');
-      resendBtn.textContent = 'Reenviar WhatsApp';
+      resendBtn.innerHTML = '<img src="/icons/send.svg" class="icon" alt=""> Reenviar WhatsApp';
       resendBtn.onclick = async () => {
         await api(`/api/ecografias/${item.id}/resend`, { method: 'POST' });
         alert('Link reenviado via WhatsApp');
       };
       const delBtn = document.createElement('button');
-      delBtn.textContent = 'Excluir';
+      delBtn.innerHTML = '<img src="/icons/trash-2.svg" class="icon" alt=""> Excluir';
       delBtn.onclick = async () => {
         await api(`/api/ecografias/${item.id}`, { method: 'DELETE' });
         carregar(searchInput.value);
       };
       const unshareBtn = document.createElement('button');
-      unshareBtn.textContent = 'Desativar';
+      unshareBtn.innerHTML = '<img src="/icons/slash.svg" class="icon" alt=""> Desativar';
       unshareBtn.onclick = async () => {
         await api(`/api/ecografias/${item.id}/unshare`, { method: 'POST' });
         carregar(searchInput.value);
       };
       const pdfLink = document.createElement('a');
-      pdfLink.textContent = 'PDF';
+      pdfLink.innerHTML = '<img src="/icons/file-text.svg" class="icon" alt=""> PDF';
       pdfLink.href = `/api/ecografias/${item.id}/pdf`;
       pdfLink.target = '_blank';
       if (userRole === 'paciente') {
@@ -340,7 +340,7 @@ if (uploadForm) {
       nameTd.textContent = u;
       const actTd = document.createElement('td');
       const passBtn = document.createElement('button');
-      passBtn.textContent = 'Senha';
+      passBtn.innerHTML = '<img src="/icons/lock.svg" class="icon" alt=""> Senha';
       passBtn.onclick = async () => {
         const pw = prompt('Nova senha:');
         if (pw) {
@@ -352,13 +352,13 @@ if (uploadForm) {
         }
       };
       const delBtn = document.createElement('button');
-      delBtn.textContent = 'Excluir';
+      delBtn.innerHTML = '<img src="/icons/trash-2.svg" class="icon" alt=""> Excluir';
       delBtn.onclick = async () => {
         await api(`/api/users/${u}`, { method: 'DELETE' });
         loadUsers();
       };
       const roleBtn = document.createElement('button');
-      roleBtn.textContent = 'Papel';
+      roleBtn.innerHTML = '<img src="/icons/user-check.svg" class="icon" alt=""> Papel';
       roleBtn.onclick = async () => {
         const role = prompt('admin, medico ou paciente?');
         if (role) {
