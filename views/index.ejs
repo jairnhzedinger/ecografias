@@ -131,8 +131,52 @@
     <div class="window-resizer"></div>
   </div>
 
+  <div id="agendaWindow" class="window" style="display:none">
+    <div class="window-header">
+      <span>Agendamento</span>
+      <div class="window-actions">
+        <button class="min-btn" data-target="agenda" data-action="minimize"></button>
+        <button class="max-btn" data-target="agenda" data-action="maximize"></button>
+        <button class="close-btn" data-target="agenda" data-action="close"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <form id="agendaForm" class="gestao-form">
+        <div>
+          <label><img src="/icons/calendar.svg" class="icon" alt=""> Data</label>
+          <input type="date" name="date" required>
+        </div>
+        <div>
+          <label><img src="/icons/clock.svg" class="icon" alt=""> Hora</label>
+          <input type="time" name="time" required>
+        </div>
+        <div>
+          <label><img src="/icons/user.svg" class="icon" alt=""> Paciente</label>
+          <input type="text" name="patientName" required>
+        </div>
+        <div>
+          <label><img src="/icons/credit-card.svg" class="icon" alt=""> CPF</label>
+          <input type="text" name="cpf">
+        </div>
+        <div>
+          <label><img src="/icons/edit.svg" class="icon" alt=""> Observações</label>
+          <textarea name="notes"></textarea>
+        </div>
+        <button type="submit"><img src="/icons/save.svg" class="icon" alt=""> Salvar</button>
+      </form>
+      <div class="table-wrapper">
+        <table id="agendaTable" class="table table-striped">
+          <thead><tr><th>Data</th><th>Hora</th><th>Paciente</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="window-resizer"></div>
+  </div>
+
   <div class="dock">
     <div class="dock-icon" data-window="gestao"><img src="/icons/settings.svg" class="icon" alt=""> Gestão</div>
+    <div class="dock-icon" data-window="agenda"><img src="/icons/calendar.svg" class="icon" alt=""> Agenda</div>
     <div class="dock-icon profile-menu">
       <img id="profilePic" class="profile-pic" src="https://placehold.co/32x32" alt="Perfil">
       <div id="profileDropdown" class="profile-dropdown">
