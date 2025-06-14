@@ -472,6 +472,53 @@ if (uploadForm) {
   })();
 }
 
+const agendaForm = document.getElementById('agendaForm');
+if (agendaForm) {
+  (async function initAgenda() {
+    const tbody = document.querySelector('#agendaTable tbody');
+    async function loadAgenda() {
+      const res = await api('/api/agendamentos');
+      const data = await res.json();
+      tbody.innerHTML = '';
+      data.forEach((item) => {
+        const tr = document.createElement('tr');
+        const dateTd = document.createElement('td');
+        dateTd.textContent = item.date;
+        const timeTd = document.createElement('td');
+        timeTd.textContent = item.time;
+        const nameTd = document.createElement('td');
+        nameTd.textContent = item.patientName;
+        const actTd = document.createElement('td');
+        const delBtn = document.createElement('button');
+        delBtn.innerHTML = '<img src="/icons/trash-2.svg" class="icon" alt=""> Excluir';
+        delBtn.onclick = async () => {
+          await api(`/api/agendamentos/${item.id}`, { method: 'DELETE' });
+          loadAgenda();
+        };
+        actTd.appendChild(delBtn);
+        tr.appendChild(dateTd);
+        tr.appendChild(timeTd);
+        tr.appendChild(nameTd);
+        tr.appendChild(actTd);
+        tbody.appendChild(tr);
+        if (window.applyScroll) window.applyScroll(tr);
+      });
+    }
+    agendaForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(agendaForm).entries());
+      await api('/api/agendamentos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      agendaForm.reset();
+      loadAgenda();
+    });
+    loadAgenda();
+  })();
+}
+
 if (typeof module !== 'undefined') {
   module.exports = {
     openWindow,

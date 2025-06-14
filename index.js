@@ -40,6 +40,7 @@ const USERS_PATH = path.join(DATA_DIR, 'users.json');
 const LOG_PATH = path.join(LOG_DIR, 'actions.log');
 const DOWNLOAD_LOG_PATH = path.join(DATA_DIR, 'downloads.json');
 const MESSAGE_PATH = path.join(DATA_DIR, 'message.txt');
+const AGENDA_PATH = path.join(DATA_DIR, 'agendamentos.json');
 
 function normalizeCpf(cpf) {
   return typeof cpf === 'string' ? cpf.replace(/\D/g, '') : '';
@@ -81,6 +82,7 @@ async function ensureWaReady() {
 let ecografias = [];
 let downloads = [];
 let users = {};
+let agendamentos = [];
 
 async function loadData() {
   try {
@@ -95,6 +97,13 @@ async function loadData() {
     downloads = JSON.parse(data);
   } catch (_) {
     downloads = [];
+  }
+
+  try {
+    const data = await fsp.readFile(AGENDA_PATH, 'utf8');
+    agendamentos = JSON.parse(data);
+  } catch (_) {
+    agendamentos = [];
   }
 
   try {
@@ -216,6 +225,7 @@ const ctx = {
   USERS_PATH,
   LOG_PATH,
   MESSAGE_PATH,
+  AGENDA_PATH,
   normalizeCpf,
   logAction,
   ensureWaReady,
@@ -227,6 +237,7 @@ const ctx = {
   GOOGLE_CALLBACK_PATH,
   ecografias,
   downloads,
+  agendamentos,
   users,
   shares,
   requireAuth,
@@ -239,6 +250,7 @@ app.use(require('./apps/message')(ctx));
 app.use(require('./apps/stats')(ctx));
 app.use(require('./apps/whatsapp')(ctx));
 app.use(require('./apps/ecografias')(ctx));
+app.use(require('./apps/agenda')(ctx));
 
 if (require.main === module) {
   app.listen(PORT, () => {
