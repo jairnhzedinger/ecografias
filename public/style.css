@@ -566,3 +566,22 @@ footer.footer {
   bottom: 0;
   cursor: se-resize;
 }
+
+.gestao-menu {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.gestao-menu button {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  background: var(--neutral-bg);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.gestao-menu button:hover {
+  background: var(--primary);
+  color: #fff;
+}

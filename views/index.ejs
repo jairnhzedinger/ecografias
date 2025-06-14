@@ -11,169 +11,127 @@
 </head>
 <body>
 <%- include('partials/header_main', { title: 'EcoShare' }) %>
-  <div id="uploadWindow" class="window">
-      <div class="window-header">
-        <span>Enviar</span>
-        <div class="window-actions">
-          <button class="min-btn" data-target="upload" data-action="minimize"></button>
-          <button class="max-btn" data-target="upload" data-action="maximize"></button>
-          <button class="close-btn" data-target="upload" data-action="close"></button>
-        </div>
+  <div id="gestaoWindow" class="window">
+    <div class="window-header">
+      <span>Gestão</span>
+      <div class="window-actions">
+        <button class="min-btn" data-target="gestao" data-action="minimize"></button>
+        <button class="max-btn" data-target="gestao" data-action="maximize"></button>
+        <button class="close-btn" data-target="gestao" data-action="close"></button>
       </div>
-      <div class="window-body">
-        <h2>Enviar nova ecografia</h2>
-        <form id="uploadForm">
-          <div>
-            <label>Paciente</label>
-            <input type="text" name="patientName" required>
-          </div>
-          <div>
-            <label>CPF</label>
-            <input type="text" name="cpf" required>
-          </div>
-          <div>
-            <label>WhatsApp</label>
-            <input type="text" name="whatsapp" placeholder="DDD + número (ex: 51912345678)" required>
-          </div>
-          <div>
-            <label>Data do exame</label>
-            <input type="date" name="examDate" required>
-          </div>
-          <div>
-            <label>Observações</label>
-            <textarea name="notes"></textarea>
-          </div>
-          <div>
-            <input type="file" name="file" accept="application/pdf" required>
-          </div>
-          <button type="submit">Enviar</button>
-        </form>
-      </div>
-      <div class="window-resizer"></div>
     </div>
-
-    <div id="listaWindow" class="window">
-      <div class="window-header">
-        <span>Lista</span>
-        <div class="window-actions">
-          <button class="min-btn" data-target="lista" data-action="minimize"></button>
-          <button class="max-btn" data-target="lista" data-action="maximize"></button>
-          <button class="close-btn" data-target="lista" data-action="close"></button>
-        </div>
+    <div class="window-body gestao-body">
+      <div class="gestao-menu">
+        <button data-section="uploadSection">Enviar</button>
+        <button data-section="listaSection">Lista</button>
+        <button data-section="usuariosSection">Usuarios</button>
+        <button data-section="mensagemSection">Mensagem</button>
+        <button data-section="statsSection">Estatisticas</button>
       </div>
-      <div class="window-body">
-        <h2>Busca</h2>
-        <input type="text" id="searchInput" placeholder="Nome, CPF ou observação">
-
-        <h2>Lista de ecografias</h2>
-        <div class="table-wrapper">
-          <table id="lista" class="table">
-            <thead>
-              <tr>
-                <th>Prévia</th>
-                <th>Paciente</th>
-                <th>Data</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+      <div class="gestao-content">
+        <div id="uploadSection" class="gestao-section">
+          <h2>Enviar nova ecografia</h2>
+          <form id="uploadForm">
+            <div>
+              <label>Paciente</label>
+              <input type="text" name="patientName" required>
+            </div>
+            <div>
+              <label>CPF</label>
+              <input type="text" name="cpf" required>
+            </div>
+            <div>
+              <label>WhatsApp</label>
+              <input type="text" name="whatsapp" placeholder="DDD + número (ex: 51912345678)" required>
+            </div>
+            <div>
+              <label>Data do exame</label>
+              <input type="date" name="examDate" required>
+            </div>
+            <div>
+              <label>Observações</label>
+              <textarea name="notes"></textarea>
+            </div>
+            <div>
+              <input type="file" name="file" accept="application/pdf" required>
+            </div>
+            <button type="submit">Enviar</button>
+          </form>
         </div>
-        <div id="shareModal" class="modal">
-          <div class="modal-content glass">
-            <span id="shareClose" class="close">&times;</span>
-            <a id="shareLink" href="#" target="_blank"></a>
-            <canvas id="qrCanvas"></canvas>
+        <div id="listaSection" class="gestao-section" style="display:none">
+          <h2>Busca</h2>
+          <input type="text" id="searchInput" placeholder="Nome, CPF ou observação">
+          <h2>Lista de ecografias</h2>
+          <div class="table-wrapper">
+            <table id="lista" class="table">
+              <thead>
+                <tr>
+                  <th>Prévia</th>
+                  <th>Paciente</th>
+                  <th>Data</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div id="shareModal" class="modal">
+            <div class="modal-content glass">
+              <span id="shareClose" class="close">&times;</span>
+              <a id="shareLink" href="#" target="_blank"></a>
+              <canvas id="qrCanvas"></canvas>
+            </div>
           </div>
         </div>
+        <div id="usuariosSection" class="gestao-section" style="display:none">
+          <h2>Usuarios</h2>
+          <form id="userForm">
+            <input type="text" name="username" placeholder="Usuario" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <select name="role">
+              <option value="medico">Medico</option>
+              <option value="paciente">Paciente</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button type="submit">Adicionar</button>
+          </form>
+          <div class="table-wrapper">
+            <table id="userList" class="table">
+              <thead><tr><th>Usuario</th><th>Acoes</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="mensagemSection" class="gestao-section" style="display:none">
+          <h2>Mensagem do WhatsApp</h2>
+          <textarea id="messageTemplate" rows="4"></textarea>
+          <button id="saveMessage">Salvar</button>
+        </div>
+        <div id="statsSection" class="gestao-section" style="display:none">
+          <h2>Estatisticas</h2>
+          <div id="statsInfo"></div>
+          <button id="refreshStats">Atualizar</button>
+          <div class="table-wrapper">
+            <table id="downloadsTable" class="table">
+              <thead><tr><th>ID</th><th>Data</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="links">
+            <a href="/api/logs" id="logLink">Logs</a>
+            <a href="/api/ecografias.csv" id="csvLink">CSV</a>
+            <a href="/api/backup" id="backupLink">Backup</a>
+          </div>
+          <div id="waStatus"></div>
+          <button id="waReset">Reiniciar WhatsApp</button>
+        </div>
       </div>
-      <div class="window-resizer"></div>
     </div>
+    <div class="window-resizer"></div>
+  </div>
 
-    <div id="usuariosWindow" class="window">
-      <div class="window-header">
-        <span>Usuarios</span>
-        <div class="window-actions">
-          <button class="min-btn" data-target="usuarios" data-action="minimize"></button>
-          <button class="max-btn" data-target="usuarios" data-action="maximize"></button>
-          <button class="close-btn" data-target="usuarios" data-action="close"></button>
-        </div>
-      </div>
-      <div class="window-body">
-        <h2>Usuarios</h2>
-        <form id="userForm">
-          <input type="text" name="username" placeholder="Usuario" required>
-          <input type="password" name="password" placeholder="Senha" required>
-          <select name="role">
-            <option value="medico">Medico</option>
-            <option value="paciente">Paciente</option>
-            <option value="admin">Admin</option>
-          </select>
-          <button type="submit">Adicionar</button>
-        </form>
-        <div class="table-wrapper">
-          <table id="userList" class="table">
-            <thead><tr><th>Usuario</th><th>Acoes</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="window-resizer"></div>
-    </div>
-
-    <div id="mensagemWindow" class="window">
-      <div class="window-header">
-        <span>Mensagem</span>
-        <div class="window-actions">
-          <button class="min-btn" data-target="mensagem" data-action="minimize"></button>
-          <button class="max-btn" data-target="mensagem" data-action="maximize"></button>
-          <button class="close-btn" data-target="mensagem" data-action="close"></button>
-        </div>
-      </div>
-      <div class="window-body">
-        <h2>Mensagem do WhatsApp</h2>
-        <textarea id="messageTemplate" rows="4"></textarea>
-        <button id="saveMessage">Salvar</button>
-      </div>
-      <div class="window-resizer"></div>
-    </div>
-
-    <div id="statsWindow" class="window">
-      <div class="window-header">
-        <span>Estatisticas</span>
-        <div class="window-actions">
-          <button class="min-btn" data-target="stats" data-action="minimize"></button>
-          <button class="max-btn" data-target="stats" data-action="maximize"></button>
-          <button class="close-btn" data-target="stats" data-action="close"></button>
-        </div>
-      </div>
-      <div class="window-body">
-        <h2>Estatisticas</h2>
-        <div id="statsInfo"></div>
-        <button id="refreshStats">Atualizar</button>
-        <div class="table-wrapper">
-          <table id="downloadsTable" class="table">
-            <thead><tr><th>ID</th><th>Data</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="links">
-          <a href="/api/logs" id="logLink">Logs</a>
-          <a href="/api/ecografias.csv" id="csvLink">CSV</a>
-          <a href="/api/backup" id="backupLink">Backup</a>
-        </div>
-        <div id="waStatus"></div>
-        <button id="waReset">Reiniciar WhatsApp</button>
-      </div>
-      <div class="window-resizer"></div>
-    </div>
-    
   <div class="dock">
-    <div class="dock-icon" data-window="upload">Enviar</div>
-    <div class="dock-icon" data-window="lista">Lista</div>
-    <div class="dock-icon" data-window="usuarios">Usuarios</div>
-    <div class="dock-icon" data-window="mensagem">Mensagem</div>
-    <div class="dock-icon" data-window="stats">Estatisticas</div>
+    <div class="dock-icon" data-window="gestao">Gestão</div>
     <div class="dock-icon profile-menu">
       <img id="profilePic" class="profile-pic" src="https://placehold.co/32x32" alt="Perfil">
       <div id="profileDropdown" class="profile-dropdown">
