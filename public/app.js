@@ -240,6 +240,9 @@ if (uploadForm) {
   const downloadsBody = document.querySelector('#downloadsTable tbody');
   const waStatus = document.getElementById('waStatus');
   const waReset = document.getElementById('waReset');
+  const logBtn = document.getElementById('logBtn');
+  const csvBtn = document.getElementById('csvBtn');
+  const backupBtn = document.getElementById('backupBtn');
 
   icons.forEach((icon) => {
     icon.addEventListener('click', () => openWindow(icon.dataset.window));
@@ -446,6 +449,10 @@ if (uploadForm) {
     });
     checkWa();
   }
+
+  if (logBtn) logBtn.addEventListener('click', () => { location.href = '/api/logs'; });
+  if (csvBtn) csvBtn.addEventListener('click', () => { location.href = '/api/ecografias.csv'; });
+  if (backupBtn) backupBtn.addEventListener('click', () => { location.href = '/api/backup'; });
 
   uploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();

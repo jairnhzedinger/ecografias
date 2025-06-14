@@ -209,6 +209,30 @@ textarea {
   border: 1px solid var(--border);
 }
 
+input[type=file] {
+  padding: 8px;
+  font-size: 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+input[type=file]::file-selector-button {
+  background: var(--primary);
+  color: #fff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+input[type=file]::file-selector-button:hover {
+  background: var(--primary-dark);
+}
+
+textarea {
+  resize: vertical;
+}
+
 button {
   background: var(--primary);
   color: #fff;
@@ -741,6 +765,20 @@ button .icon {
   color: var(--primary);
 }
 
+#statsSection .links button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 #statsSection .links a:hover {
   text-decoration: underline;
+}
+
+#userList button {
+  margin-right: 6px;
+}
+
+#userList button:last-child {
+  margin-right: 0;
 }
