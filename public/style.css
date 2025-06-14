@@ -116,6 +116,23 @@ header {
   flex-basis: 100%;
 }
 
+.gestao-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.gestao-form input,
+.gestao-form select,
+.gestao-form textarea {
+  flex: 1;
+}
+
+.gestao-form button[type='submit'] {
+  flex-basis: 100%;
+}
+
 .tabs {
   display: flex;
   gap: 10px;

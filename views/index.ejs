@@ -32,28 +32,29 @@
         <div id="gestaoBack" class="gestao-back" style="display:none"><img src="/icons/arrow-left.svg" class="icon" alt=""></div>
         <div id="uploadSection" class="gestao-section">
           <h2>Enviar nova ecografia</h2>
-          <form id="uploadForm">
+          <form id="uploadForm" class="gestao-form">
             <div>
-              <label>Paciente</label>
+              <label><img src="/icons/user.svg" class="icon" alt=""> Paciente</label>
               <input type="text" name="patientName" required>
             </div>
             <div>
-              <label>CPF</label>
+              <label><img src="/icons/credit-card.svg" class="icon" alt=""> CPF</label>
               <input type="text" name="cpf" required>
             </div>
             <div>
-              <label>WhatsApp</label>
+              <label><img src="/icons/phone.svg" class="icon" alt=""> WhatsApp</label>
               <input type="text" name="whatsapp" placeholder="DDD + número (ex: 51912345678)" required>
             </div>
             <div>
-              <label>Data do exame</label>
+              <label><img src="/icons/calendar.svg" class="icon" alt=""> Data do exame</label>
               <input type="date" name="examDate" required>
             </div>
             <div>
-              <label>Observações</label>
+              <label><img src="/icons/edit.svg" class="icon" alt=""> Observações</label>
               <textarea name="notes"></textarea>
             </div>
             <div>
+              <label><img src="/icons/file.svg" class="icon" alt=""> Arquivo</label>
               <input type="file" name="file" accept="application/pdf" required>
             </div>
             <button type="submit"><img src="/icons/upload.svg" class="icon" alt=""> Enviar</button>
