@@ -470,6 +470,10 @@ footer.footer {
 .profile-dropdown.show {
   display: block;
 }
+
+.profile-menu:hover .profile-dropdown {
+  display: block;
+}
 .scroll-fade {
   opacity: 0;
   transform: translateY(20px);
