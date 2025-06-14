@@ -1,14 +1,14 @@
 :root {
-  --bg-light: linear-gradient(135deg, #168AAD, #76C893);
-  --text-light: #000;
-  --primary: #1A759F;
-  --primary-dark: #168AAD;
-  --neutral-bg: #fafafa;
-  --neutral: #e0e0e0;
-  --border: #ccc;
+  --bg-light: linear-gradient(135deg, #a7c5eb, #c8e6c9);
+  --text-light: #333;
+  --primary: #2a9d8f;
+  --primary-dark: #1f776d;
+  --neutral-bg: #f5f7f8;
+  --neutral: #e0ebef;
+  --border: #b9c6cd;
   --radius: 8px;
   --radius-sm: 4px;
-  --green-bg: #76C893;
+  --green-bg: #c8e6c9;
 }
 
 body {
@@ -106,7 +106,7 @@ header {
 }
 
 .tab:hover {
-  background: #555;
+  background: var(--primary-dark);
   color: #fff;
 }
 
@@ -432,7 +432,7 @@ footer.footer {
 
 .login-sep {
   margin: 15px 0;
-  color: #555;
+  color: #4a4a4a;
 }
 
 /* Novo layout do painel */
@@ -471,7 +471,7 @@ footer.footer {
   display: flex;
   gap: 10px;
   padding: 8px 12px;
-  background: rgba(26, 117, 159, 0.1);
+  background: rgba(42, 157, 143, 0.1);
   backdrop-filter: blur(10px);
   border-radius: var(--radius);
   box-shadow: 0 0px 10px rgba(0, 0, 0, 0.2);
@@ -573,6 +573,8 @@ footer.footer {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .gestao-menu .item {
@@ -613,6 +615,8 @@ footer.footer {
 
 .gestao-content {
   transform: translateX(100%);
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .gestao-body.show-section .gestao-menu {
