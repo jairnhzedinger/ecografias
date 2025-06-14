@@ -203,7 +203,9 @@ if (uploadForm) {
   const shareClose = document.getElementById('shareClose');
   const qrCanvas = document.getElementById('qrCanvas');
   const icons = document.querySelectorAll('.dock-icon');
-  const menuBtns = document.querySelectorAll('.gestao-menu button');
+  const menu = document.querySelector('.gestao-menu');
+  const menuItems = document.querySelectorAll('.gestao-menu .item');
+  const backBtn = document.getElementById('gestaoBack');
   const sections = document.querySelectorAll('.gestao-section');
   const userForm = document.getElementById('userForm');
   const userList = document.querySelector('#userList tbody');
@@ -219,14 +221,25 @@ if (uploadForm) {
     icon.addEventListener('click', () => openWindow(icon.dataset.window));
   });
 
+  function showList() {
+    menu.style.display = 'block';
+    backBtn.style.display = 'none';
+    sections.forEach((s) => {
+      s.style.display = 'none';
+    });
+  }
+
   function showSection(id) {
+    menu.style.display = 'none';
+    backBtn.style.display = 'block';
     sections.forEach((s) => {
       s.style.display = s.id === id ? 'block' : 'none';
     });
   }
 
-  menuBtns.forEach((b) => b.addEventListener('click', () => showSection(b.dataset.section)));
-  showSection('uploadSection');
+  menuItems.forEach((i) => i.addEventListener('click', () => showSection(i.dataset.section)));
+  if (backBtn) backBtn.addEventListener('click', showList);
+  showList();
 
   if (shareClose) {
     shareClose.addEventListener('click', () => {

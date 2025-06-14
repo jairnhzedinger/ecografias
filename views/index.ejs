@@ -22,13 +22,14 @@
     </div>
     <div class="window-body gestao-body">
       <div class="gestao-menu">
-        <button data-section="uploadSection">Enviar</button>
-        <button data-section="listaSection">Lista</button>
-        <button data-section="usuariosSection">Usuarios</button>
-        <button data-section="mensagemSection">Mensagem</button>
-        <button data-section="statsSection">Estatisticas</button>
+        <div class="item" data-section="uploadSection">Enviar</div>
+        <div class="item" data-section="listaSection">Lista</div>
+        <div class="item" data-section="usuariosSection">Usuarios</div>
+        <div class="item" data-section="mensagemSection">Mensagem</div>
+        <div class="item" data-section="statsSection">Estatisticas</div>
       </div>
       <div class="gestao-content">
+        <div id="gestaoBack" class="gestao-back" style="display:none">&lt;</div>
         <div id="uploadSection" class="gestao-section">
           <h2>Enviar nova ecografia</h2>
           <form id="uploadForm">
