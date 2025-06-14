@@ -600,29 +600,30 @@ footer.footer {
 /* Animacao da area de gestao */
 .gestao-body {
   position: relative;
-  overflow: hidden;
   min-height: 300px;
 }
 
 .gestao-menu,
 .gestao-content {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
-  transition: transform 0.3s ease;
 }
 
 .gestao-content {
-  transform: translateX(100%);
+  display: none;
   padding: 10px;
   box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.gestao-section h2 {
+  margin-top: 0;
 }
 
 .gestao-body.show-section .gestao-menu {
-  transform: translateX(-100%);
+  display: none;
 }
 
 .gestao-body.show-section .gestao-content {
-  transform: translateX(0);
+  display: block;
 }
