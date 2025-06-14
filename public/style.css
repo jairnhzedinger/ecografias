@@ -448,6 +448,8 @@ footer.footer {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 6px 0;
   z-index: 1000;
+  width: max-content;
+  color: var(--text-light);
 }
 
 .profile-dropdown a,
@@ -461,6 +463,9 @@ footer.footer {
   border-radius: var(--radius-sm);
   text-align: left;
   width: 100%;
+}
+.profile-dropdown .icon {
+  filter: none;
 }
 .profile-dropdown a:hover,
 .profile-dropdown button:hover {
