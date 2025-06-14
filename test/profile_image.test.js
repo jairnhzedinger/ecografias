@@ -9,7 +9,7 @@ describe('Imagem de perfil', () => {
     await agent.post('/login').send({ username: 'admin', password: 'admin' });
   });
 
-  test('header usa placeholder de perfil', async () => {
+  test('dock exibe placeholder de perfil', async () => {
     const res = await agent.get('/');
     expect(res.status).toBe(200);
     expect(res.text).toContain('https://placehold.co/32x32');

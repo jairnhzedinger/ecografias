@@ -84,7 +84,8 @@ Para executar a suíte de testes utilize `npm test`.
 
 A interface web disponível em `/` permite enviar novas ecografias e visualizar a lista de imagens cadastradas.
 Há um **dock** fixo na parte inferior com a aplicação **Gestão**.
-Ao abrir essa aplicação surge uma janela única com as opções de Enviar, Lista, Usuários, Mensagem e Estatísticas,
+Nele aparece a foto do usuário logado, ao lado do menu de logout.
+Ao abrir a aplicação de gestão surge uma janela única com as opções de Enviar, Lista, Usuários, Mensagem e Estatísticas,
 que são exibidas na própria janela conforme o item escolhido.
 Os usuários possuem papéis de **admin**, **medico** ou **paciente**. Somente administradores conseguem gerenciar usuários.
 Pacientes enxergam apenas seus próprios exames.
