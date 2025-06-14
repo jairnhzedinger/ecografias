@@ -664,3 +664,32 @@ footer.footer {
   vertical-align: middle;
   margin-right: 4px;
 }
+
+button .icon {
+  filter: brightness(0) invert(1);
+}
+
+.dock-icon:hover .icon,
+.gestao-menu .item:hover .icon,
+.tab:hover .icon,
+.tab.active .icon {
+  filter: brightness(0) invert(1);
+}
+
+#statsSection .links {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+#statsSection .links a {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--primary);
+}
+
+#statsSection .links a:hover {
+  text-decoration: underline;
+}
