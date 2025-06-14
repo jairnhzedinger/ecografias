@@ -32,7 +32,9 @@ function bringToFront(win) {
 function openWindow(id) {
   const win = document.getElementById(id + 'Window');
   if (win) {
+    win.classList.remove('closing');
     win.style.display = 'block';
+    requestAnimationFrame(() => win.classList.add('visible'));
     win.classList.remove('maximized');
     bringToFront(win);
   }
@@ -41,14 +43,24 @@ function openWindow(id) {
 function closeWindow(id) {
   const win = document.getElementById(id + 'Window');
   if (win) {
-    win.style.display = 'none';
+    win.classList.remove('visible');
+    win.classList.add('closing');
+    const onEnd = () => {
+      win.style.display = 'none';
+      win.classList.remove('closing');
+      win.removeEventListener('transitionend', onEnd);
+    };
+    win.addEventListener('transitionend', onEnd);
     win.classList.remove('maximized');
   }
 }
 
 function minimizeWindow(id) {
   const win = document.getElementById(id + 'Window');
-  if (win) win.style.display = 'none';
+  if (win) {
+    win.classList.remove('visible');
+    win.style.display = 'none';
+  }
 }
 
 function maximizeWindow(id) {
@@ -414,6 +426,10 @@ if (uploadForm) {
   searchInput.addEventListener('input', () => carregar(searchInput.value));
   carregar();
   })();
+}
+
+if (typeof module !== 'undefined') {
+  module.exports = { openWindow, closeWindow, minimizeWindow, maximizeWindow };
 }
 
 // Painel do paciente

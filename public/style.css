@@ -500,7 +500,18 @@ footer.footer {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   display: none;
+  transform: scale(0.8);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
   z-index: 500;
+}
+
+.window.visible {
+  display: block;
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .window.maximized {
