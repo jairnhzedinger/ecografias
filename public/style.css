@@ -308,6 +308,7 @@ button:hover {
 }
 
 .gsi-material-button {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -325,7 +326,6 @@ button:hover {
   transition: box-shadow .2s ease;
   white-space: nowrap;
   width: 100%;
-  max-width: 400px;
 }
 
 .gsi-material-button .gsi-material-button-icon {
@@ -359,6 +359,7 @@ button:hover {
   top: 0;
   opacity: 0;
   position: absolute;
+  pointer-events: none;
 }
 
 .gsi-material-button:disabled {
@@ -486,6 +487,10 @@ footer.footer {
   max-width: 420px;
   padding: 40px;
   text-align: center;
+}
+.login-logo {
+  max-width: 180px;
+  margin-bottom: 20px;
 }
 
 .login-card label {

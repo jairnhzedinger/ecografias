@@ -1,4 +1,4 @@
-# EcoShare
+# ExamShare
 
 Sistema para disponibilizar ecografias online com upload, compartilhamento por WhatsApp e visualização de laudos em PDF.
 

@@ -38,12 +38,11 @@ describe('Paginas publicas', () => {
     expect(res.text).toContain('gsi-material-button');
   });
 
-  test('login exibe cabe\xE7alho com nome', async () => {
-    const res = await request(app).get('/login.html');
-    expect(res.status).toBe(200);
-    expect(res.text).toContain('<header');
-    expect(res.text).toContain('EcoShare');
-  });
+test('login n\xE3o exibe cabe\xE7alho', async () => {
+  const res = await request(app).get('/login.html');
+  expect(res.status).toBe(200);
+  expect(res.text).not.toContain('<header');
+});
 
   test('painel n\xE3o tem cabe\xE7alho', async () => {
     const res = await request(app).get('/painel.html');
