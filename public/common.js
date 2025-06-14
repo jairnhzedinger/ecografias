@@ -10,6 +10,13 @@ async function initProfileMenu() {
       if (me.picture) pic.src = me.picture;
     }
   } catch (_) {}
+  const container = pic.parentElement;
+  container.addEventListener('mouseenter', () => {
+    dropdown.classList.add('show');
+  });
+  container.addEventListener('mouseleave', () => {
+    dropdown.classList.remove('show');
+  });
   pic.addEventListener('click', () => {
     dropdown.classList.toggle('show');
   });
@@ -18,4 +25,8 @@ async function initProfileMenu() {
       dropdown.classList.remove('show');
     }
   });
+}
+
+if (typeof module !== 'undefined') {
+  module.exports = { initProfileMenu };
 }
