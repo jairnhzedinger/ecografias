@@ -83,9 +83,9 @@ Para executar a suíte de testes utilize `npm test`.
 ## Interface Web
 
 A interface web disponível em `/` permite enviar novas ecografias e visualizar a lista de imagens cadastradas.
-Agora a navegação é feita por um **dock** fixo na parte inferior da página.
-Cada item do dock abre uma **janela** flutuante que pode ser arrastada,
-redimensionada, maximizada ou fechada.
+Há um **dock** fixo na parte inferior com a aplicação **Gestão**.
+Ao abrir essa aplicação surge uma janela única com as opções de Enviar, Lista, Usuários, Mensagem e Estatísticas,
+que são exibidas na própria janela conforme o item escolhido.
 Os usuários possuem papéis de **admin**, **medico** ou **paciente**. Somente administradores conseguem gerenciar usuários.
 Pacientes enxergam apenas seus próprios exames.
 Para que um paciente visualize seu laudo, um link de compartilhamento é gerado pelo administrador. O paciente precisa acessar esse link e informar o CPF cadastrado para liberar o PDF.

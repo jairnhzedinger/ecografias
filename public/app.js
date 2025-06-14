@@ -183,12 +183,16 @@ if (uploadForm) {
     } catch (_) {}
 
     if (userRole !== 'admin') {
-      document.querySelector('[data-window="usuarios"]').style.display = 'none';
-      document.querySelector('[data-window="stats"]').style.display = 'none';
+      document.querySelector('[data-section="usuariosSection"]').style.display = 'none';
+      document.getElementById('usuariosSection').style.display = 'none';
+      document.querySelector('[data-section="statsSection"]').style.display = 'none';
+      document.getElementById('statsSection').style.display = 'none';
     }
     if (userRole === 'paciente') {
-      document.querySelector('[data-window="upload"]').style.display = 'none';
-      document.querySelector('[data-window="mensagem"]').style.display = 'none';
+      document.querySelector('[data-section="uploadSection"]').style.display = 'none';
+      document.getElementById('uploadSection').style.display = 'none';
+      document.querySelector('[data-section="mensagemSection"]').style.display = 'none';
+      document.getElementById('mensagemSection').style.display = 'none';
     }
 
   const lista = document.getElementById('lista');
@@ -199,6 +203,8 @@ if (uploadForm) {
   const shareClose = document.getElementById('shareClose');
   const qrCanvas = document.getElementById('qrCanvas');
   const icons = document.querySelectorAll('.dock-icon');
+  const menuBtns = document.querySelectorAll('.gestao-menu button');
+  const sections = document.querySelectorAll('.gestao-section');
   const userForm = document.getElementById('userForm');
   const userList = document.querySelector('#userList tbody');
   const messageTemplate = document.getElementById('messageTemplate');
@@ -212,6 +218,15 @@ if (uploadForm) {
   icons.forEach((icon) => {
     icon.addEventListener('click', () => openWindow(icon.dataset.window));
   });
+
+  function showSection(id) {
+    sections.forEach((s) => {
+      s.style.display = s.id === id ? 'block' : 'none';
+    });
+  }
+
+  menuBtns.forEach((b) => b.addEventListener('click', () => showSection(b.dataset.section)));
+  showSection('uploadSection');
 
   if (shareClose) {
     shareClose.addEventListener('click', () => {
